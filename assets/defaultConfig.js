@@ -5,7 +5,7 @@ export const DefaultCONFIG = {
         gap: 1,
         items:[
             "clock",
-            "weather",
+            "cell",
             "cardbox",
             "listbox"
         ]
@@ -14,13 +14,14 @@ export const DefaultCONFIG = {
         accent: "#57a0d9", // hover
         background: "#19171a",
         cards: "#201e21",
+        list: "#201e21",
         text: {
             font: null,
             size: { //vh
-                primary: 12,
-                secondary: 4,
+                primary: "12vh",
+                secondary: "4vh",
                 date: null,
-                list: 2
+                itemText: "2vh"
             },
             color: {
                 fg: "#d8dee9",
@@ -28,9 +29,7 @@ export const DefaultCONFIG = {
             }
         },
         icon: {
-            size: "3vh",
-            fill: "#d8dee9",
-            sfill: "#2c292e" // secondary/hover
+            size: "24px",
         },
         bgImg: {
             bgSize: "cover",
@@ -42,22 +41,25 @@ export const DefaultCONFIG = {
         animation: {
             active: true,
             duration: 200
-        }
+        },
+        borderRadius: "5px"
     },
     apps: {
         clock: {
-            format: 12,
-            showSec: false,
+            format: 12, // 12 or 24, other number will be regarded as 24
+            showSec: false, // this overrides separator pulsing
             separator: ":",
+            pulse: true,
             am: "a.m.",
             pm: "p.m.",
             greet: {
                 name: "User",
-                morning: "Good morning",
-                afternoon: "Good afternoon",
-                evening: "Good evening",
-                night: "Good night"
+                morning: "Good morning, ",
+                afternoon: "Good afternoon, ",
+                evening: "Good evening, ",
+                night: "Good night, "
             }
         }
-    }
+    },
+    default: true
 };

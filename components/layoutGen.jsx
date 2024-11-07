@@ -6,7 +6,6 @@ export default function LayoutGenerator({config}){
     return <>
         <div className="px-[5%] py-[5%] md:px-[10%] lg:px-[15%] xl:px-[20%] h-screen w-screen grid auto-cols-auto auto-rows-auto" style={gridStyles}>
             <ComponentGenerator config={config}/>
-            <CellGen nums={config.layout.cols * config.layout.rows -1} />
         </div>
     </>
 }

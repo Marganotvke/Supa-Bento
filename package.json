@@ -15,6 +15,7 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "@iconify/react": "^5.0.2",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
     "react": "^18.3.1",
