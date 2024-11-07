@@ -15,11 +15,11 @@ function _cards(idx, card, config){
     )
 }
 
-export default function Cardbox({idx, config}){
+export default function Cardbox({idx, config ,isHidden}){
     const cardConf = config.default ? defaultCardsConfig[idx] : customCardsConfig[idx];
 
     return <>
-        <div className="grid px-2 py-6" style={{gridTemplateColumns: `repeat(${cardConf.layout.cols}, 1fr)`, gridTemplateRows: `repeat(${cardConf.layout.rows}, 1fr)`, gap: `${cardConf.layout.gap}rem`}}>
+        <div className={`md:grid ${isHidden? "hidden" : ""} px-2 py-6`} style={{gridTemplateColumns: `repeat(${cardConf.layout.cols}, 1fr)`, gridTemplateRows: `repeat(${cardConf.layout.rows}, 1fr)`, gap: `${cardConf.layout.gap}rem`}}>
             {cardConf.content.map((card, i) => {
                     return  _cards(i, card, config)
                 }

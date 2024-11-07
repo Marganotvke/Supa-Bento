@@ -13,7 +13,7 @@ function _inlineListItem(idx, item, config){
     </a>
 }
 
-function _listItem(idx, itemList, config){
+function _listItem(idx, itemList, config, isHidden){
     const listIcon = itemList.iconType ? <Icon icon={itemList.icon} /> : itemList.icon;
     const listTitle = itemList.title ? itemList.title : listIcon;
 
@@ -32,12 +32,12 @@ function _listItem(idx, itemList, config){
     </div>
 }
 
-export default function ListBox({idx, config}){
+export default function ListBox({idx, config ,isHidden}){
     const listConf = config.default ? defaultListConfig[idx] : customListConfig[idx];
 
     return <>
         <div style={{gridTemplateColumns: `repeat(${listConf.layout.cols}, 1fr)`, gap: `${listConf.layout.gap}rem`}}
-            className="grid p-2 text-[--text] hover:text-[--hoverText]" >
+            className={`md:grid ${isHidden? "hidden" : ""} p-2 text-[--text] hover:text-[--hoverText]`} >
             {listConf.content.map((list, i) => {
                     return _listItem(i, list, config)
                 }

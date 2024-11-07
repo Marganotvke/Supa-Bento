@@ -5,8 +5,8 @@ export const DefaultCONFIG = {
         gap: 1,
         items:[
             "clock",
-            "cell",
             "cardbox",
+            "cell",
             "listbox"
         ]
     },
