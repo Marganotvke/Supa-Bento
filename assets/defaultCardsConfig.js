@@ -8,39 +8,33 @@ export const defaultCardsConfig = [
         content: [
             {
                 link: "https://example.com",
-                iconType: false, // to use iconify or plain text(emoji)
-                icon: "🎉", // must be string
-                title: null // using title will override icon
+                iconType: false, // to use iconify or plain text(e.g. emoji)
+                iconTitle: "🎉" // must be string
             },
             {
                 link: "https://example.com",
                 iconType: false,
-                icon: "🗻", 
-                title: null
+                iconTitle: "🗻" 
             },
             {
                 link: "https://example.com",
                 iconType: false,
-                icon: null,
-                title: "Card 3"
+                iconTitle: "Card 3"
             },
             {
                 link: "https://example.com",
                 iconType: false,
-                icon: null,
-                title: "Card 4"
+                iconTitle: "Card 4"
             },
             {
                 link: "https://icon-sets.iconify.design/",
                 iconType: true,
-                icon: "ion:cloudy-night-outline",
-                title: null
+                iconTitle: "ion:cloudy-night-outline",
             },
             {
                 link: "https://icon-sets.iconify.design/",
                 iconType: true,
-                icon: "lucide:tractor",
-                title: null
+                iconTitle: "lucide:tractor",
             },
         ]
     },

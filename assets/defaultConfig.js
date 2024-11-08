@@ -6,15 +6,14 @@ export const DefaultCONFIG = {
         items:[
             "clock",
             "cardbox",
-            "cell",
+            "memo",
             "listbox"
         ]
     },
     theme: {
         accent: "#57a0d9", // hover
         background: "#19171a",
-        cards: "#201e21",
-        list: "#201e21",
+        app: "#201e21",
         text: {
             font: null,
             size: { //vh
@@ -29,7 +28,7 @@ export const DefaultCONFIG = {
             }
         },
         icon: {
-            size: "24px",
+            size: "3vh",
         },
         bgImg: {
             bgSize: "cover",
@@ -40,7 +39,7 @@ export const DefaultCONFIG = {
         },
         animation: {
             active: true,
-            duration: 200
+            duration: 200 //ms
         },
         borderRadius: "5px"
     },

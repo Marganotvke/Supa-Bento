@@ -1,12 +1,14 @@
 import Clock from "./clock";
 import Cells from "./cellGen";
 import Cardbox from "./cards";
-import ListBox from "./list";
+import ListBox from "./lists";
+import Memo from "./memo";
 
 export default function ComponentGenerator({config}){
     const components = config.layout.items;
     var cardCounts = 0;
     var listCounts = 0;
+    var memoCounts = 0;
     const thresh = config.layout.cols/2;
 
     return <>
@@ -19,6 +21,8 @@ export default function ComponentGenerator({config}){
                             return <Cardbox key={i} idx={cardCounts++} config={config} isHidden={isHidden}/>
                         case "listbox":
                             return <ListBox key={i} idx={listCounts++} config={config} isHidden={isHidden}/>
+                        case "memo":
+                            return <Memo key={i} idx={memoCounts++} config={config} isHidden={isHidden}/>
                         default:
                             return <Cells key={i} idx={i} isHidden={isHidden}/>
                     }

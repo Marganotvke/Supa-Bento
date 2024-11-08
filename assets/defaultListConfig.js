@@ -7,14 +7,13 @@ export const defaultListConfig = [
         content: [
             {
                 iconType: false, // use iconify icons or not
-                icon: "🔹", // must be string
-                title: "List 1", // overrides icon
+                iconTitle: "List 1", // must be string
                 gap: 1, //rem
                 items: [
                     {
                         iconType: false, // icons here are inline
                         icon: "✔️",
-                        title: "Item 1",
+                        title: "",
                         link: "#"
                     },
                     {
@@ -25,7 +24,7 @@ export const defaultListConfig = [
                     },
                     {
                         iconType: false, // icons here are inline
-                        icon: "🔓",
+                        icon: "",
                         title: "Item 3",
                         link: "#"
                     },
@@ -39,8 +38,7 @@ export const defaultListConfig = [
             },
             {
                 iconType: true, // use iconify icons or not
-                icon: "lucide:gem", // must be string
-                title: null, // overrides icon
+                iconTitle: "lucide:gem", // must be string
                 gap: 1, //rem
                 items: [
                     {
@@ -52,12 +50,12 @@ export const defaultListConfig = [
                     {
                         iconType: true, // icons here are inline
                         icon: "proicons:checkmark-starburst",
-                        title: "Item 2",
+                        title: "",
                         link: "#"
                     },
                     {
                         iconType: true, // icons here are inline
-                        icon: "gridicons:align-image-left",
+                        icon: "",
                         title: "Item 3",
                         link: "#"
                     },

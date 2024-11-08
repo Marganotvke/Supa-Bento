@@ -14,19 +14,19 @@ function _inlineListItem(idx, item, theme){
     </a>
 }
 
-function _listItem(idx, itemList, config, isHidden){
-    const listIcon = itemList.iconType ? <Icon icon={itemList.icon} /> : itemList.icon;
-    const listTitle = itemList.title ? itemList.title : listIcon;
+function _listItem(idx, itemList, config){
+    const theme = config.theme;
+    const listIconTitle = itemList.iconType ? <Icon icon={itemList.iconTitle} /> : itemList.iconTitle;
 
-    return <div key={idx} className="flex flex-col drop-shadow-lg" style={{borderRadius: config.theme.borderRadius, backgroundColor: config.theme.list}}>
-        <h1 style={{fontSize: config.theme.icon.size, color: config.theme.text.color.fg}}
+    return <div key={idx} className="flex flex-col drop-shadow-lg" style={{borderRadius: theme.borderRadius, backgroundColor: theme.app}}>
+        <h1 style={{fontSize: theme.icon.size, color: theme.text.color.fg}}
             className="flex flex-1 text-center items-center justify-center p-2 h-[15%]">
-            {listTitle}
+            {listIconTitle}
             </h1>
-        <div key={idx} style={{fontSize: config.theme.text.size.itemText, "--text": config.theme.text.color.fg, gap: `${itemList.gap}rem`} }
+        <div key={idx} style={{fontSize: theme.text.size.itemText, "--text": theme.text.color.fg, gap: `${itemList.gap}rem`} }
         className="flex flex-1 flex-col items-center justify-center text-[--text] p-2">
             {itemList.items.map((item, i) => {
-                    return _inlineListItem(i, item, config.theme)
+                    return _inlineListItem(i, item, theme)
                 })
             }
         </div>

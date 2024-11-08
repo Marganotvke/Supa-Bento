@@ -4,16 +4,15 @@ import { Icon } from "@iconify/react";
 
 function _cards(idx, card, config){
     const theme = config.theme;
-    const icon = card.iconType ? <Icon icon={card.icon} style={{fontSize: theme.icon.size}}/> : card.icon;
-    const cardContent = card.title ? card.title : icon;
+    const iconTitle = card.iconType ? <Icon icon={card.iconTitle} style={{fontSize: theme.icon.size}}/> : card.iconTitle;
     const animation = theme.animation.active ? {transition: `${theme.animation.duration}ms ease-in-out`} : {transition: `none`};
 
 
     return(
         <a href={card.link} key={idx} 
-            style={{borderRadius: theme.borderRadius, fontSize: theme.text.size.itemText, "--text": theme.text.color.fg, '--hover': theme.accent, "--hoverText": theme.text.color.sfg, "--cardBg": theme.cards, ...animation}} 
+            style={{borderRadius: theme.borderRadius, fontSize: theme.text.size.itemText, "--text": theme.text.color.fg, '--hover': theme.accent, "--hoverText": theme.text.color.sfg, "--cardBg": theme.app, ...animation}} 
             className="bg-[--cardBg] hover:bg-[--hover] text-[--text] hover:text-[#2c292e] flex flex-row p-2 items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-1">
-                {cardContent}
+                {iconTitle}
         </a>
     )
 }
