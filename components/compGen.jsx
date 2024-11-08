@@ -3,6 +3,7 @@ import Cells from "./cellGen";
 import Cardbox from "./cards";
 import ListBox from "./lists";
 import Memo from "./memo";
+import DateComponent from "./date";
 
 export default function ComponentGenerator({config}){
     const components = config.layout.items;
@@ -23,6 +24,8 @@ export default function ComponentGenerator({config}){
                             return <ListBox key={i} idx={listCounts++} config={config} isHidden={isHidden}/>
                         case "memo":
                             return <Memo key={i} idx={memoCounts++} config={config} isHidden={isHidden}/>
+                        case "date":
+                            return <DateComponent key={i} config={config} isHidden={isHidden}/>
                         default:
                             return <Cells key={i} idx={i} isHidden={isHidden}/>
                     }

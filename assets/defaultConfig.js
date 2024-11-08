@@ -1,13 +1,13 @@
 export const DefaultCONFIG = {
     layout: {
-        cols: 2,
+        cols: 2, // in short width screens, cols will be halved, make sure it is a power of 2
         rows: 2,
         gap: 1,
-        items:[
+        items:[ // apply cols first
             "clock",
             "cardbox",
-            "memo",
-            "listbox"
+            "date",
+            "listbox",
         ]
     },
     theme: {
@@ -16,10 +16,10 @@ export const DefaultCONFIG = {
         app: "#201e21",
         text: {
             font: null,
-            size: { //vh
-                primary: "12vh",
+            size: {
+                primary: "11vh",
                 secondary: "4vh",
-                date: null,
+                date: "8vh",
                 itemText: "2vh"
             },
             color: {
@@ -58,6 +58,10 @@ export const DefaultCONFIG = {
                 evening: "Good evening, ",
                 night: "Good night, "
             }
+        },
+        date: {
+            format1: "EEEE, LLL d", // this project uses date-fns format
+            format2: "y"
         }
     },
     default: true
