@@ -2,7 +2,7 @@ export const defaultListConfig = [
     {
         layout: {
             cols: 2,
-            gap: 1 //rem
+            gap: 2 //rem
         },
         content: [
             {

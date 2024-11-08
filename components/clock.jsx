@@ -47,7 +47,7 @@ export default function Clock({config, isHidden}){
     },[]);
 
     return (
-        <div className={`md:flex ${isHidden? "hidden" : ""} flex-col py-8 items-center justify-center`}>
+        <div className={`md:flex ${isHidden? "hidden" : "flex"} flex-col py-8 items-center justify-center`}>
             <div className="flex-1 flex font-bold text-center items-center" style={{fontSize: theme.text.size.primary, color: theme.text.color.fg}}>
                 <a>{timeString}</a>
             </div>
