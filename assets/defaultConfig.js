@@ -1,12 +1,12 @@
 export const DefaultCONFIG = {
     layout: {
-        cols: 2, // in short width screens, cols will be halved, make sure it is a power of 2
+        cols: 2, // in short width screens, cols will be halved, make sure it is a multiple of 2
         rows: 2,
         gap: 1,
         items:[ // apply cols first
             "clock",
             "cardbox",
-            "date",
+            "memo",
             "listbox",
         ]
     },
@@ -64,5 +64,122 @@ export const DefaultCONFIG = {
             format2: "y"
         }
     },
-    default: true
+    
+    default: true,
+
+    lists: [
+        {
+            layout: {
+                cols: 2,
+                gap: 2 //rem
+            },
+            content: [
+                {
+                    iconType: false, // use iconify icons or not
+                    iconTitle: "List 1", // must be string
+                    gap: 1, //rem
+                    items: [
+                        {
+                            iconType: false, // icons here are inline
+                            icon: "✔️",
+                            title: "",
+                            link: "#"
+                        },
+                        {
+                            iconType: false, // icons here are inline
+                            icon: "🕯",
+                            title: "Item 2",
+                            link: "#"
+                        },
+                        {
+                            iconType: false, // icons here are inline
+                            icon: "",
+                            title: "Item 3",
+                            link: "#"
+                        },
+                        {
+                            iconType: false, // icons here are inline
+                            icon: "🍲",
+                            title: "Item 4",
+                            link: "#"
+                        },
+                    ]
+                },
+                {
+                    iconType: true, // use iconify icons or not
+                    iconTitle: "lucide:gem", // must be string
+                    gap: 1, //rem
+                    items: [
+                        {
+                            iconType: true, // icons here are inline
+                            icon: "iconoir:bright-star",
+                            title: "Item 1",
+                            link: "#"
+                        },
+                        {
+                            iconType: true, // icons here are inline
+                            icon: "proicons:checkmark-starburst",
+                            title: "",
+                            link: "#"
+                        },
+                        {
+                            iconType: true, // icons here are inline
+                            icon: "",
+                            title: "Item 3",
+                            link: "#"
+                        },
+                        {
+                            iconType: true, // icons here are inline
+                            icon: "eos-icons:hardware-circuit",
+                            title: "Item 4",
+                            link: "#"
+                        },
+                    ]
+                },
+            ]
+        }
+    ],
+
+    cards: [
+        {
+            layout: {
+                cols: 3,
+                rows: 2,
+                gap: 1 //rem
+            },
+            content: [
+                {
+                    link: "https://example.com",
+                    iconType: false, // to use iconify or plain text(e.g. emoji)
+                    iconTitle: "🎉" // must be string
+                },
+                {
+                    link: "https://example.com",
+                    iconType: false,
+                    iconTitle: "🗻" 
+                },
+                {
+                    link: "https://example.com",
+                    iconType: false,
+                    iconTitle: "Card 3"
+                },
+                {
+                    link: "https://example.com",
+                    iconType: false,
+                    iconTitle: "Card 4"
+                },
+                {
+                    link: "https://icon-sets.iconify.design/",
+                    iconType: true,
+                    iconTitle: "ion:cloudy-night-outline",
+                },
+                {
+                    link: "https://icon-sets.iconify.design/",
+                    iconType: true,
+                    iconTitle: "lucide:tractor",
+                },
+            ]
+        },
+    ],
+
 };

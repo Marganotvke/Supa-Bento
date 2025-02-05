@@ -10,7 +10,13 @@ export default function ComponentGenerator({config}){
     var cardCounts = 0;
     var listCounts = 0;
     var memoCounts = 0;
-    const thresh = config.layout.cols/2;
+    var thresh = 0;
+    if(config.layout.cols % 2 !== 0){
+        thresh = (config.layout.cols - 1)/2;
+        console.log(`Your layout has an odd number of columns (${config.layout.cols}). Make sure it is a multiple of 2 for best results.`);
+    }else{
+        thresh = config.layout.cols/2;
+    }
 
     return <>
         {components.map((comp, i) => {

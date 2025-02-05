@@ -1,7 +1,7 @@
 export default function Popup() {
     return (
         <>
-            <h1 className="bg-slate-400 text-white text-2xl p-2">You are using Supa-Bento</h1>
+            <h1 className="bg-slate-100 text-gray-900 text-xl p-2">Contact</h1>
         </>
     )
-}
+}``
