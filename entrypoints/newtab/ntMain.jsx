@@ -14,11 +14,11 @@ const usrConfig = storage.defineItem(
 
 const config = await usrConfig.getValue();
 const theme = config.theme;
-const bg = {backgroundImage: [`linear-gradient(${theme.bgImg.bgCol.start}, ${theme.bgImg.bgCol.end})`, `url(${imageUrl})`]};
+const bg = {"backgroundSize": theme.bgImg.bgSize, backgroundImage: [`linear-gradient(${theme.bgImg.bgCol.deg}deg, ${theme.bgImg.bgCol.start}, ${theme.bgImg.bgCol.end})`, `url(${imageUrl})`]};
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <div className={`h-full w-full bg-cover`} style={bg}>
+        <div className={`h-full w-full`} style={bg}>
             <LayoutGenerator config={config}/>
         </div>
     </React.StrictMode>,

@@ -6,16 +6,15 @@ export const DefaultCONFIG = {
         items:[ // apply cols first
             "clock",
             "cardbox",
-            "memo",
+            "date",
             "listbox",
         ]
     },
     theme: {
         accent: "#57a0d9", // hover
-        background: "#19171a",
         app: "#201e21",
         text: {
-            font: null,
+            font: '',
             size: {
                 primary: "11vh",
                 secondary: "4vh",
@@ -34,14 +33,15 @@ export const DefaultCONFIG = {
             bgSize: "cover",
             bgCol: { // linear gradient, applies before bgimg
                 start: "rgba(0,0,0,0.4)",
-                end: "rgba(0,0,0,0.4)"
+                end: "rgba(0,0,0,0.4)",
+                deg: 0
             }
         },
         animation: {
             active: true,
             duration: 200 //ms
         },
-        borderRadius: "5px"
+        borderRadius: 5, //px
     },
     apps: {
         clock: {
@@ -60,126 +60,126 @@ export const DefaultCONFIG = {
             }
         },
         date: {
-            format1: "EEEE, LLL d", // this project uses date-fns format
-            format2: "y"
-        }
+            format1: "dddd, MMM D", // this project uses dayjs format
+            format2: "YYYY"
+        },
+
+        lists: [
+            {
+                layout: {
+                    cols: 2,
+                    gap: 2 //rem
+                },
+                content: [
+                    {
+                        iconType: false, // use iconify icons or not
+                        iconTitle: "List 1", // must be string
+                        gap: 1, //rem
+                        items: [
+                            {
+                                iconType: false, // icons here are inline
+                                icon: "✔️",
+                                title: "",
+                                link: "#"
+                            },
+                            {
+                                iconType: false, // icons here are inline
+                                icon: "🕯",
+                                title: "Item 2",
+                                link: "#"
+                            },
+                            {
+                                iconType: false, // icons here are inline
+                                icon: "",
+                                title: "Item 3",
+                                link: "#"
+                            },
+                            {
+                                iconType: false, // icons here are inline
+                                icon: "🍲",
+                                title: "Item 4",
+                                link: "#"
+                            },
+                        ]
+                    },
+                    {
+                        iconType: true, // use iconify icons or not
+                        iconTitle: "lucide:gem", // must be string
+                        gap: 1, //rem
+                        items: [
+                            {
+                                iconType: true, // icons here are inline
+                                icon: "iconoir:bright-star",
+                                title: "Item 1",
+                                link: "#"
+                            },
+                            {
+                                iconType: true, // icons here are inline
+                                icon: "proicons:checkmark-starburst",
+                                title: "",
+                                link: "#"
+                            },
+                            {
+                                iconType: true, // icons here are inline
+                                icon: "",
+                                title: "Item 3",
+                                link: "#"
+                            },
+                            {
+                                iconType: true, // icons here are inline
+                                icon: "eos-icons:hardware-circuit",
+                                title: "Item 4",
+                                link: "#"
+                            },
+                        ]
+                    },
+                ]
+            }
+        ],
+    
+        cards: [
+            {
+                layout: {
+                    cols: 3,
+                    rows: 2,
+                    gap: 1 //rem
+                },
+                content: [
+                    {
+                        link: "https://example.com",
+                        iconType: false, // to use iconify or plain text(e.g. emoji)
+                        iconTitle: "🎉" // must be string
+                    },
+                    {
+                        link: "https://example.com",
+                        iconType: false,
+                        iconTitle: "🗻" 
+                    },
+                    {
+                        link: "https://example.com",
+                        iconType: false,
+                        iconTitle: "Card 3"
+                    },
+                    {
+                        link: "https://example.com",
+                        iconType: false,
+                        iconTitle: "Card 4"
+                    },
+                    {
+                        link: "https://icon-sets.iconify.design/",
+                        iconType: true,
+                        iconTitle: "ion:cloudy-night-outline",
+                    },
+                    {
+                        link: "https://icon-sets.iconify.design/",
+                        iconType: true,
+                        iconTitle: "lucide:tractor",
+                    },
+                ]
+            },
+        ],
+    
     },
     
     default: true,
-
-    lists: [
-        {
-            layout: {
-                cols: 2,
-                gap: 2 //rem
-            },
-            content: [
-                {
-                    iconType: false, // use iconify icons or not
-                    iconTitle: "List 1", // must be string
-                    gap: 1, //rem
-                    items: [
-                        {
-                            iconType: false, // icons here are inline
-                            icon: "✔️",
-                            title: "",
-                            link: "#"
-                        },
-                        {
-                            iconType: false, // icons here are inline
-                            icon: "🕯",
-                            title: "Item 2",
-                            link: "#"
-                        },
-                        {
-                            iconType: false, // icons here are inline
-                            icon: "",
-                            title: "Item 3",
-                            link: "#"
-                        },
-                        {
-                            iconType: false, // icons here are inline
-                            icon: "🍲",
-                            title: "Item 4",
-                            link: "#"
-                        },
-                    ]
-                },
-                {
-                    iconType: true, // use iconify icons or not
-                    iconTitle: "lucide:gem", // must be string
-                    gap: 1, //rem
-                    items: [
-                        {
-                            iconType: true, // icons here are inline
-                            icon: "iconoir:bright-star",
-                            title: "Item 1",
-                            link: "#"
-                        },
-                        {
-                            iconType: true, // icons here are inline
-                            icon: "proicons:checkmark-starburst",
-                            title: "",
-                            link: "#"
-                        },
-                        {
-                            iconType: true, // icons here are inline
-                            icon: "",
-                            title: "Item 3",
-                            link: "#"
-                        },
-                        {
-                            iconType: true, // icons here are inline
-                            icon: "eos-icons:hardware-circuit",
-                            title: "Item 4",
-                            link: "#"
-                        },
-                    ]
-                },
-            ]
-        }
-    ],
-
-    cards: [
-        {
-            layout: {
-                cols: 3,
-                rows: 2,
-                gap: 1 //rem
-            },
-            content: [
-                {
-                    link: "https://example.com",
-                    iconType: false, // to use iconify or plain text(e.g. emoji)
-                    iconTitle: "🎉" // must be string
-                },
-                {
-                    link: "https://example.com",
-                    iconType: false,
-                    iconTitle: "🗻" 
-                },
-                {
-                    link: "https://example.com",
-                    iconType: false,
-                    iconTitle: "Card 3"
-                },
-                {
-                    link: "https://example.com",
-                    iconType: false,
-                    iconTitle: "Card 4"
-                },
-                {
-                    link: "https://icon-sets.iconify.design/",
-                    iconType: true,
-                    iconTitle: "ion:cloudy-night-outline",
-                },
-                {
-                    link: "https://icon-sets.iconify.design/",
-                    iconType: true,
-                    iconTitle: "lucide:tractor",
-                },
-            ]
-        },
-    ],
-
 };

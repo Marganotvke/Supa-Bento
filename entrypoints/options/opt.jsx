@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import {DefaultCONFIG} from '../../assets/defaultConfig'
 import {storage} from "wxt/storage";
+import { AngleSlider, ColorInput, NumberInput, Select, Slider, Switch, Text, TextInput, Tabs } from "@mantine/core";
+import { Icon } from '@iconify/react';
 
 function _arrLenCh(arr, len){
     //helper function to change array length
@@ -23,7 +25,6 @@ export default function Options() {
 
     //theme
     const [accent, setAccent] = useState("#57a0d9");
-    const [background, setBackground] = useState("#19171a");
     const [app, setApp] = useState("#201e21");
     const [text, setText] = useState({
             font: null,
@@ -43,7 +44,8 @@ export default function Options() {
         bgSize: "cover",
         bgCol: { // linear gradient, applies before bgimg
             start: "rgba(0,0,0,0.4)",
-            end: "rgba(0,0,0,0.4)"
+            end: "rgba(0,0,0,0.4)",
+            deg: 0
         }
     });
     const [animation, setAnimation] = useState({
@@ -69,7 +71,6 @@ export default function Options() {
                 setItems(fetchedConfig.layout?.items || DefaultCONFIG.layout.items);
 
                 setAccent(fetchedConfig.theme?.accent || DefaultCONFIG.theme.accent);
-                setBackground(fetchedConfig.theme?.background || DefaultCONFIG.theme.background);
                 setApp(fetchedConfig.theme?.app || DefaultCONFIG.theme.app);
                 setText(fetchedConfig.theme?.text || DefaultCONFIG.theme.text);
                 setIcon(fetchedConfig.theme?.icon || DefaultCONFIG.theme.icon);
@@ -90,7 +91,7 @@ export default function Options() {
 
     const _itemsLists = (idx, item) => {
         return (
-            <select style={{"--hCalc": `${(80/rows)}%`, "--wCalc": `${(85/cols)}%`, "--gapCalc": `${gap}px`}} className="h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-gray-200" value={item} onChange={(e)=>{setItems( [...items].map((x, i) => i === idx ? e.target.value : x) )}}>
+            <select key={idx} style={{"--hCalc": `${(80/rows)}%`, "--wCalc": `${(40/rows)}%`,"--gapCalc": `${gap/6}vw`}} className="h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-gray-200 rounded-md text-center" value={item} onChange={(e)=>{setItems( [...items].map((x, i) => i === idx ? e.target.value : x) )}}>
                 <option value="clock">Clock</option>
                 <option value="cardbox">Cards</option>
                 <option value="memo">Memo</option>
@@ -100,60 +101,75 @@ export default function Options() {
         )
     }
 
-    const handleColsRowsChange = (e, type) => {
-        if (type){
-            setRows(e.target.value);
-        }else{
-            setCols(e.target.value);
-        }
-    }
-
     return (
-        <>
-            <div className="flex flex-col bg-slate-100 text-gray-900 p-2">
-                <h1 className="text-2xl">Options</h1>
-                <hr className="h-px my-2 bg-gray-300 border-0"/>
-                <h3 className="text-lg">Layout</h3>
-                <label className="text-sm">
-                    Columns{" "}<input type="number" value={cols} onChange={(e)=>{handleColsRowsChange(e, 0)}} min="2" max="4" step="2" className="w-10 border rounded border-slate-500 p-1" placeholder="2" />
-                    {" "}Rows{" "}<input type="number" value={rows} onChange={(e)=>{handleColsRowsChange(e, 1)}} min="1" max="3" className="w-10 border rounded border-slate-500 p-1" placeholder="2" />
-                    {" "}Gap{" "}<input type="range" value={gap} onChange={(e)=>setGap(e.target.value)} min="0" max="6" step="1" className="p-1" placeholder="1" />
-                    <br />Items<h6 className="text-[2.5vw] inline"> (Actual gap is bigger)</h6>
-                    <div className="h-[50vw] flex flex-col flex-wrap border border-slate-500 justify-center items-center mb-1">
-                        {items.map((item, idx) => _itemsLists(idx, item))}
-                    </div>
-                </label>
-                <hr className="h-px my-2 bg-gray-300 border-0"/>
-                <h3 className="text-lg">Theme</h3>
-                <label className="text-sm">
-                    Accent Colour <input type="color" value={accent} onChange={(e)=>setAccent(e.target.value)} className="border rounded border-slate-500 p-1 m-1" />
-                    {" "}Background Colour <input type="color" value={background} onChange={(e)=>setBackground(e.target.value)} className="border rounded border-slate-500 p-1 m-1" />
-                    <br />App Colour <input type="color" value={app} onChange={(e)=>setApp(e.target.value)} className="border rounded border-slate-500 p-1 m-1" />
-                    <br />Text Colour<div className="border border-slate-500 p-1 justify-center items-center mb-1">
-                        Font<input type="text" value={text.font} onChange={(e)=>setText({...text, font: e.target.value})} className="w-10 h-6 border rounded border-slate-500 p-1 m-1" />
-                        {" "}Primary Size<input type="text" value={text.size.primary} onChange={(e)=>setText({...text, size: {...text.size, primary: e.target.value}})} className="w-10 h-6 border border-slate-500 p-1 m-1" />
-                        <br />Secondary Size<input type="text" value={text.size.secondary} onChange={(e)=>setText({...text, size: {...text.size, secondary: e.target.value}})} className="w-10 h-6 border border-slate-500 p-1 m-1" />
-                        {" "}Date Size<input type="text" value={text.size.date} onChange={(e)=>setText({...text, size: {...text.size, size: {...text.size, date: e.target.value}}})} className="w-10 h-6 border border-slate-500 p-1 m-1" />
-                        <br />Item Text Size<input type="text" value={text.size.itemText} onChange={(e)=>setText({...text, size: {...text.size, itemText: e.target.value}})} className="w-10 h-6 border border-slate-500 p-1 m-1" />
-                        {" "}Text Colour<input type="color" value={text.color.fg} onChange={(e)=>setText({...text, color: {...text.color, fg: e.target.value}})} className="border rounded border-slate-500 p-1 m-1" />
-                        <br />Hover Colour<input type="color" value={text.color.sfg} onChange={(e)=>setText({...text, color: {...text.color, sfg: e.target.value}})} className="border rounded border-slate-500 p-1 m-1" />
-                    </div>
-                    Icon Size <input type="text" value={icon.size} onChange={(e)=>setIcon({size: e.target.value})} className="w-10 h-6 border rounded border-slate-500 p-1 m-1" />
-                    <br />Background<h6 className="text-[2.5vw] inline"> (Colour is linear gradient, applies before background image)</h6><div className="border border-slate-500 p-1 justify-center items-center mb-1">
-                        Background Size <select className="border rounded border-slate-500">
-                            <option value="cover">Cover</option>
-                            <option value="contain">Contain</option>
-                            <option value="auto">Auto</option>
-                            <option value="100% 100%">Full</option>
-                        </select>
-                        <br />Background Colour Start<input type="color" value={bgImg.bgCol.start} onChange={(e)=>setBgImg({...bgImg, bgCol: {...bgImg.bgCol, start: e.target.value}})} className="border rounded border-slate-500 p-1 m-1" />
-                        <br />Background Colour End<input type="color" value={bgImg.bgCol.end} onChange={(e)=>setBgImg({...bgImg, bgCol: {...bgImg.bgCol, end: e.target.value}})} className="border rounded border-slate-500 p-1 m-1" />
-                    </div>
-                    Animation Active <input type="checkbox" checked={animation.active} onChange={(e)=>setAnimation({active: e.target.checked, duration: animation.duration})} className="border rounded border-slate-500 p-1 m-1" />
-                    <br /> Animation Duration (ms)<input type="number" value={animation.duration} onChange={(e)=>setAnimation({active: animation.active, duration: e.target.value})} className="w-[3.5rem] h-6 border rounded border-slate-500 p-1 m-1" min="1" max="9999" />
-                </label>
-                <hr className="h-px my-2 bg-gray-300 border-0"/>
-            </div>
-        </>
+            <form className="flex flex-col text-gray-900 p-2">
+                <Tabs defaultValue="layout">
+                    <Tabs.List>
+                        <Tabs.Tab value="layout" leftSection={<Icon icon={"ph:layout"} />}>Layout</Tabs.Tab>
+                        <Tabs.Tab value="theme" leftSection={<Icon icon={"ph:paint-brush-household"} />}>Theme</Tabs.Tab>
+                        <Tabs.Tab value="apps" leftSection={<Icon icon={"ph:app-window"} />}>Apps</Tabs.Tab>
+                    </Tabs.List>
+                    <Tabs.Panel value="layout">
+                        <div className="text-sm flex flex-wrap gap-5 mt-1">
+                            <NumberInput label="Columns" value={cols} onChange={setCols} min={2} max={4} step={2} className="w-[5vw]"/>
+                            <NumberInput label="Rows" value={rows} onChange={setRows} min={1} max={3} step={1} className="w-[5vw]"/>
+                            <div>
+                                <Text fw={500}>Gap</Text>
+                                <Slider value={gap} onChange={setGap} min={0} max={6} step={1} className="w-[15vw] mt-1" />
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex gap-1 mt-1">
+                                <Text>Items</Text><Text className="italic">(Actual gap is bigger)</Text>
+                            </div>
+                            <div className="h-[35svw] aspect-video flex flex-col flex-wrap border border-slate-500 justify-center items-center">
+                                {items.map((item, idx) => _itemsLists(idx, item))}
+                            </div>
+                        </div>
+                    </Tabs.Panel>
+
+                    <Tabs.Panel value="theme">
+                        <div className="flex gap-5 mt-1">
+                            <ColorInput label="Accent Color" description="Used when hovering" value={accent} onChange={setAccent} className="w-[15vw]"/>
+                            <ColorInput label="App Color" description="Used for apps' background" value={app} onChange={setApp} className="w-[15vw]"/>
+                        </div>
+                        <Text>Text Properties</Text>
+                        <div className="border border-slate-500 p-1 justify-center items-center mb-1">
+                            <TextInput label="Font" value={text.font} onChange={(e)=>setText({...text, font: e.currentTarget.value})} className="w-[15vw]" placeholder="None"/>
+                            <div className="flex gap-5 mt-1">
+                                <TextInput label="Primary Size" value={text.size.primary} onChange={(e)=>setText({...text, size: {...text.size, primary: e.currentTarget.value}})} className="w-[7vw]" />
+                                <TextInput label="Secondary Size" value={text.size.secondary} onChange={(e)=>setText({...text, size: {...text.size, secondary: e.currentTarget.value}})} className="w-[7vw]" />
+                                <TextInput label="Date Size" value={text.size.date} onChange={(e)=>setText({...text, size: {...text.size, date: e.currentTarget.value}})} className="w-[7vw]" />
+                                <TextInput label="Item Text Size" value={text.size.itemText} onChange={(e)=>setText({...text, size: {...text.size, itemText: e.currentTarget.value}})} className="w-[7vw]" />
+                            </div>
+                            <div className="flex gap-5 mt-1">
+                                <ColorInput label="Text Color" value={text.color.fg} onChange={(e)=>setText({...text, color: {...text.color, fg: e}})} className="w-[15vw]"/>
+                                <ColorInput label="Hover Color" value={text.color.sfg} onChange={(e)=>setText({...text, color: {...text.color, sfg: e}})} className="w-[15vw]"/>
+                            </div>
+                        </div>
+                        <TextInput label="Icon Size" value={icon.size} onChange={(e)=>setIcon({size: e.currentTarget.value})} className="w-[7vw]" />
+                        <div className="flex gap-1 mt-1">
+                            <Text>Background</Text><Text className="italic">(color applies before background image)</Text>
+                        </div>
+                        <div className="flex border border-slate-500 p-1 gap-5 items-center mb-1">
+                            <Select label="Background Size" value={bgImg.bgSize} className="w-[15vw]"
+                            data={[{value: 'cover', label: "Cover"},{value: 'contain', label: "Contain"},{value: 'auto', label: "Auto"}]} 
+                            onChange={(val, _) => setBgImg({...bgImg, bgSize: val})} allowDeselect={false} />
+                            <ColorInput label="Background Gradient Start" value={bgImg.bgCol.start} onChange={(e)=>setBgImg({...bgImg, bgCol: {...bgImg.bgCol, start: e}})} format="rgba" className="w-[15vw]"/>
+                            <ColorInput label="Background Gradient End" value={bgImg.bgCol.end} onChange={(e)=>setBgImg({...bgImg, bgCol: {...bgImg.bgCol, end: e}})} format="rgba" className="w-[15vw]"/>
+                            <Text fw={500}>Gradient Angle</Text>
+                            <AngleSlider value={bgImg.bgCol.deg} size={50} onChange={(e)=>setBgImg({...bgImg, bgCol: {...bgImg.bgCol, deg: e}})} step={15} formatLabel={(val) => `${val}°`} className="-ml-3" />
+                        </div>
+                        <div className="flex gap-1 mt-1 items-center">
+                            <Switch checked={animation.active} onChange={(e)=>setAnimation({active: e.currentTarget.checked, duration: animation.duration})} /><Text>Animation </Text>
+                        </div>
+                        <div className={`${animation.active? null : "hidden"} flex border border-slate-500 p-1 items-center gap-5`}>
+                            <NumberInput disabled={!animation.active} label="Duration (ms)" value={animation.duration} onChange={(e)=>setAnimation({active: animation.active, duration: e})} min={1} max={9999} className={`w-[10vw]`} />
+                        </div>
+                        <NumberInput label="Border Radius (px)" value={borderRadius} onChange={setBorderRadius} className="mt-1 w-[8vw]" />
+                    </Tabs.Panel>
+
+                </Tabs>
+            </form>
     )
 }

@@ -6,7 +6,7 @@ function _inlineListElements(idx, item, theme, anim){
     const inlineTitle = item.title;
 
     return <a href={item.link} key={idx} 
-        style={{transition: `${theme.animation.duration}ms ease-in-out`, '--hover': theme.accent, "--hoverText": theme.text.color.sfg, borderRadius: theme.borderRadius, ...anim}} 
+        style={{transition: `${theme.animation.duration}ms ease-in-out`, '--hover': theme.accent, "--hoverText": theme.text.color.sfg, borderRadius: `${theme.borderRadius}px`, ...anim}} 
         className="w-[80%] p-2 min-w-0 items-center justify-center inline-flex hover:text-[--hoverText] hover:bg-[--hover]">
             {inlineIcon}{"\xa0"}{inlineTitle}
     </a>
@@ -34,11 +34,11 @@ function _listItem(idx, itemList, config, anim){
 export default function ListBox({idx, config ,isHidden}){
     const theme = config.theme;
     let listConf;
-    if (config.lists[idx]){
-        listConf = config.lists[idx];
+    if (config.apps.lists[idx]){
+        listConf = config.apps.lists[idx];
     }else{
-        listConf = config.lists[0];
-        console.log(`Cannot find list config for list number ${idx}`);
+        listConf = config.apps.lists[0];
+        console.log(`Cannot find list config for list ${idx}`);
     }
     const animation = theme.animation.active ? {transition: `${theme.animation.duration}ms ease-in-out`} : {transition: `none`};
 
