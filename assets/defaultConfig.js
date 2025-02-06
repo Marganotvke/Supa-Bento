@@ -30,6 +30,7 @@ export const DefaultCONFIG = {
             size: "3vh",
         },
         bgImg: {
+            img: "https://picsum.photos/1920/1080",
             bgSize: "cover",
             bgCol: { // linear gradient, applies before bgimg
                 start: "rgba(0,0,0,0.4)",

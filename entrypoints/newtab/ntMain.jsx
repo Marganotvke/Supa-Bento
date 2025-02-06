@@ -2,10 +2,9 @@ import React from "react";
 import ReactDOM from 'react-dom/client';
 import LayoutGenerator from "../../components/layoutGen.jsx";
 import { DefaultCONFIG } from '../../assets/defaultConfig.js';
-import imageUrl from '../../assets/background.jpg';
 import { storage } from "wxt/storage";
 
-(async () => {
+(async () => { //IIFE
     const usrConfig = storage.defineItem(
         "sync:usrConfig",
         {
@@ -14,8 +13,8 @@ import { storage } from "wxt/storage";
     );
 
     const config = await usrConfig.getValue();
-    const theme = config.theme;
-    const bg = {"backgroundSize": theme.bgImg.bgSize, backgroundImage: [`linear-gradient(${theme.bgImg.bgCol.deg}deg, ${theme.bgImg.bgCol.start}, ${theme.bgImg.bgCol.end})`, `url(${imageUrl})`]};
+    const theme = config.theme;;
+    const bg = {"backgroundSize": theme.bgImg.bgSize, backgroundImage: [`linear-gradient(${theme.bgImg.bgCol.deg}deg, ${theme.bgImg.bgCol.start}, ${theme.bgImg.bgCol.end})`, `url(${theme.bgImg.img})`]};
 
     ReactDOM.createRoot(document.getElementById('root')).render(
         <React.StrictMode>
