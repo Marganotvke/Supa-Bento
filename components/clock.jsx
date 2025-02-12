@@ -17,7 +17,7 @@ function _time(now, config){
         greet = `${config.apps.clock.greet.morning}${config.apps.clock.greet.name}`;
     }else if (hours >= 12 && hours < 18){
         greet = `${config.apps.clock.greet.afternoon}${config.apps.clock.greet.name}`;
-    }else if (hours >= 18 && hours < 22){
+    }else if (hours >= 18 && hours < 21){
         greet = `${config.apps.clock.greet.evening}${config.apps.clock.greet.name}`;
     }else{
         greet = `${config.apps.clock.greet.night}${config.apps.clock.greet.name}`;
@@ -36,7 +36,7 @@ function _time(now, config){
 export default function Clock({config, isHidden}){
     const [now, setNow] = useState(new Date());
     const {hours, minutes, seconds, ampm, sep, greet} = _time(now, config);
-    const timeString = `${hours}${sep}${minutes}${config.apps.clock.showSec ? sep : ""}${seconds} ${config.apps.clock.format === 12 ? ampm : ""}`;
+    const timeString = `${hours}${sep}${minutes}${config.apps.clock.showSec ? sep : ""}${seconds} ${config.apps.clock.format12 ? ampm : ""}`;
     const theme = config.theme;
 
     useEffect(() => {

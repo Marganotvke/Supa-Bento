@@ -46,7 +46,7 @@ export const DefaultCONFIG = {
     },
     apps: {
         clock: {
-            format: 12, // 12 or 24, other number will be regarded as 24
+            format12: true, // 12 or 24, other number will be regarded as 24
             showSec: false, // this overrides separator pulsing
             separator: ":",
             pulse: true,
