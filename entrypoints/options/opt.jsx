@@ -106,7 +106,6 @@ export default function Options() {
                 setLists(fetchedConfig.apps?.lists || DefaultCONFIG.apps.lists);
                 setCards(fetchedConfig.apps?.cards || DefaultCONFIG.apps.cards);
 
-                console.log(lists); 
             }catch(e){
                 console.error(e);
             }
@@ -131,6 +130,7 @@ export default function Options() {
     }
 
     const [listFocus, setListFocus] = useState(``);
+    const [cardFocus, setCardFocus] = useState(``);
 
     const handleListTabsSelect = (val) => {
         if(val === "add"){
@@ -140,18 +140,38 @@ export default function Options() {
         }else{
             setListFocus(val);
         }
-        console.log(lists);
+    }
+
+    const handleCardTabsSelect = (val) => {
+        if(val === "add"){
+            if (cards.length >= 8){ return; }
+            setCards([...cards, DefaultCONFIG.apps.cards[0]]);
+            setCardFocus(`card${cards.length}`);
+        }else{
+            setCardFocus(val);
+        }
     }
 
     const handleDeletList = (e) => {
         e.preventDefault();
         setLists([...lists].filter((_, idx) => idx !== parseInt(listFocus.slice(-1)) ));
-        setListFocus(``);
+        setListFocus(lists.length > 1 ? `list${lists.length - 2}` : ``);
     }
+
+    const handleDeletCard = (e) => {
+        e.preventDefault();
+        setCards([...cards].filter((_, idx) => idx !== parseInt(cardFocus.slice(-1)) ));
+        setCardFocus(cards.length > 1 ? `card${cards.length - 2}` : ``);
+    }
+
+    const cardTabs = cards
+    .map((card, idx) => {
+        return <Tabs.Tab key={idx} value={`card${idx}`} rightSection={<CloseButton onClick={handleDeletCard} className="-my-1 -mr-2" />}>{`Cards ${idx + 1}`}</Tabs.Tab>;
+    });
 
     const pillTabs = lists
     .map((list, idx) => {
-        return <Tabs.Tab key={idx} value={`list${idx}`} rightSection={<CloseButton onClick={handleDeletList} className="-my-1 -mr-2"/>}>{`List ${idx+1}`}</Tabs.Tab>;
+        return <Tabs.Tab key={idx} value={`list${idx}`} rightSection={<CloseButton onClick={handleDeletList} className="-my-1 -mr-2" />}>{`List ${idx + 1}`}</Tabs.Tab>;
     });
 
     const pillsPanels = lists
@@ -159,31 +179,32 @@ export default function Options() {
         return <Tabs.Panel key={idx} value={`list${idx}`} >
             <Text fw={500}>Layout</Text>
             <div className="flex gap-2 border p-1 items-center mb-1">
-                <NumberInput label="Sublists" value={list.layout.cols} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, layout: {...x.layout, cols: e}} : x))} min={1} max={2} step={1} className="w-[5svw]"/>
-                <NumberInput label="Gap (rem)" value={list.layout.gap} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, layout: {...x.layout, gap: e}} : x))} min={0} max={6} step={1} className="w-[5svw]"/>
+                <NumberInput label="Sublists" value={list.layout.cols} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, layout: {...x.layout, cols: e}} : x))} min={1} max={2} step={1} className="w-[7svw]"/>
+                <NumberInput label="Gap (rem)" value={list.layout.gap} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, layout: {...x.layout, gap: e}} : x))} min={0} max={6} step={1} className="w-[7svw]"/>
             </div>
             <Text fw={500}>Sublists</Text>
             <div className="flex gap-2">
                 <div className="flex flex-col gap-2 border p-1 justify-center m-1">
                     <div className="flex gap-2 items-center">
-                        <Checkbox label="Use Iconify Icon?" checked={list.content[0].iconType} onChange={(e)=>{setLists([...lists].map((x, i) => i === idx ? {...x, content: [{...x.content[0], iconType: e.currentTarget.checked}, x.content[1]]} : x))}} />
+                        <Checkbox label="Use Iconify Icon as Sublist Name?" checked={list.content[0].iconType} onChange={(e)=>{setLists([...lists].map((x, i) => i === idx ? {...x, content: [{...x.content[0], iconType: e.currentTarget.checked}, x.content[1]]} : x))}} />
                         <HoverCard>
                             <HoverCard.Target>
                                 <Icon icon="material-symbols:info" height="20" />
                             </HoverCard.Target>
                             <HoverCard.Dropdown>
                                 <Anchor href="https://icon-sets.iconify.design/" target="_blank">Iconify Icons</Anchor>
+                                <br />Disable to use emoji
                             </HoverCard.Dropdown>
                         </HoverCard>
                     </div>
                     <div className="flex gap-1">
                         <TextInput label={`Sublist 1 ${list.content[0].iconType ? "Icon" : ""} Name`} value={list.content[0].iconTitle} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [{...x.content[0], iconTitle: e.currentTarget.value}]} : x))} className="w-[10svw]" />
-                        <NumberInput label="Gap (rem)" value={list.content[0].gap} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [{...x.content[0], gap: e}, x.content[1]]} : x))} min={0} max={6} step={1} className="w-[5svw]"/>
+                        <NumberInput label="Gap (rem)" value={list.content[0].gap} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [{...x.content[0], gap: e}, x.content[1]]} : x))} min={0} max={6} step={1} className="w-[7svw]"/>
                     </div>
                     {list.content[0].items.map((item, iidx) => {
                         return <div key={`lsi${idx}${iidx}`} className="flex gap-1">
                             <div className="flex flex-col gap-2 items-center w-[5svw]">
-                                <Text className="text-wrap text-center">Use Iconify</Text>
+                                <Text size={"sm"} className="text-wrap text-center">Use Iconify</Text>
                                 <Switch checked={item.iconType} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [{...x.content[0], items: x.content[0].items.map((y, j) => j === iidx ? {...y, iconType: e.currentTarget.checked} : y)}, x.content[1]]} : x))} />
                             </div>
                             <TextInput label={`Item ${iidx+1} Icon`} value={item.icon} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [{...x.content[0], items: x.content[0].items.map((y, j) => j === iidx ? {...y, icon: e.currentTarget.value} : y)}, x.content[1]]} : x))} className="w-[10svw]" />
@@ -194,24 +215,25 @@ export default function Options() {
                 </div>
                 <div className={`${list.layout.cols >= 2 ? "flex" : "hidden"} flex-col gap-2 border p-1 justify-center m-1`}>
                     <div className="flex gap-2 items-center">
-                        <Checkbox label="Use Iconify Icon?" checked={list.content[1].iconType} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [x.content[0], {...x.content[1], iconType: e.currentTarget.checked}]} : x))} />
+                        <Checkbox label="Use Iconify Icon as Sublist Name?" checked={list.content[1].iconType} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [x.content[0], {...x.content[1], iconType: e.currentTarget.checked}]} : x))} />
                         <HoverCard>
                             <HoverCard.Target>
                                 <Icon icon="material-symbols:info" height="20" />
                             </HoverCard.Target>
                             <HoverCard.Dropdown>
                                 <Anchor href="https://icon-sets.iconify.design/" target="_blank">Iconify Icons</Anchor>
+                                <br />Disable to use emoji
                             </HoverCard.Dropdown>
                         </HoverCard>
                     </div>
                     <div className="flex gap-1">
                         <TextInput label={`Sublist 2 ${list.content[1].iconType ? "Icon" : ""} Name`} value={list.content[1].iconTitle} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [{...x.content[1], iconTitle: e.currentTarget.value}]} : x))} className="w-[15svw]" />
-                        <NumberInput label="Gap (rem)" value={list.content[1].gap} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [x.content[0], {...x.content[1], gap: e}]} : x))} min={0} max={6} step={1} className="w-[5svw]"/>
+                        <NumberInput label="Gap (rem)" value={list.content[1].gap} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [x.content[0], {...x.content[1], gap: e}]} : x))} min={0} max={6} step={1} className="w-[7svw]"/>
                     </div>
                     {list.content[1].items.map((item, iidx) => {
                         return <div key={`lsi${idx}${iidx}`} className="flex gap-1">
                             <div className="flex flex-col gap-2 items-center w-[5svw]">
-                                <Text className="text-wrap text-center">Use Iconify</Text>
+                                <Text size={"sm"} className="text-wrap text-center">Use Iconify</Text>
                                 <Switch checked={item.iconType} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [x.content[0], {...x.content[1], items: x.content[1].items.map((y, j) => j === iidx ? {...y, iconType: e.currentTarget.checked} : y)}]} : x))} />
                             </div>
                             <TextInput label={`Item ${iidx+1} Icon`} value={item.icon} onChange={(e)=>setLists([...lists].map((x, i) => i === idx ? {...x, content: [x.content[0], {...x.content[1], items: x.content[1].items.map((y, j) => j === iidx ? {...y, icon: e.currentTarget.value} : y)}]} : x))} className="w-[10svw]" />
@@ -222,6 +244,35 @@ export default function Options() {
                 </div>
             </div>
         </Tabs.Panel>;
+    });
+
+    const cardPanels = cards
+    .map((card, idx) => {
+
+        return (
+            <Tabs.Panel key={idx} value={`card${idx}`}>
+                <Text fw={500}>Layout</Text>
+                <div className="flex gap-2 items-center border p-1 mb-1">
+                    <NumberInput label="Columns" value={card.layout.cols} max={3} min={1} step={1} onChange={(e)=>setCards([...cards].map((x,i) => i === idx ? {...x, layout: {...x.layout, cols: e}} : x))} className="w-[7svw]" />
+                    <NumberInput label="Rows" value={card.layout.rows} min={1} max={2} step={1} onChange={(e)=>setCards([...cards].map((x,i) => i === idx ? {...x, layout: {...x.layout, rows: e}} : x))} className="w-[7svw]" />
+                    <NumberInput label="Gap (rem)" value={card.layout.gap} min={0} max={6} step={1} onChange={(e)=>setCards([...cards].map((x,i) => i === idx ? {...x, layout: {...x.layout, gap: e}} : x))} className="w-[7svw]" />
+                </div>
+                <Text fw={500}>Cards</Text>
+                <div className="flex flex-col gap-2 border p-1 mb-1">
+                    {card.content.map((item, iidx) => {
+                        return <div key={`ci${idx}${iidx}`} className="flex gap-1">
+                            <div className="flex flex-col gap-2 items-center w-[5svw]">
+                                <Text size={"sm"} className="text-wrap text-center">Use Iconify</Text>
+                                <Switch checked={item.iconType} onChange={(e)=>setCards([...cards].map((x, i) => i === idx ? {...x, content: x.content.map((y, j) => j === iidx ? {...y, iconType: e.currentTarget.checked} : y)} : x))} />
+                            </div>
+                            <TextInput label={`Card ${iidx+1} ${item.iconType ? "Icon" : "Text"}`} value={item.iconTitle} onChange={(e)=>setCards([...cards].map((x, i) => i === idx ? {...x, content: x.content.map((y, j) => j === iidx ? {...y, title: e.currentTarget.value} : y)} : x))} className="w-[10svw]" />
+                            <TextInput label={`Card ${iidx+1} Link`} value={item.link} onChange={(e)=>setCards([...cards].map((x, i) => i === idx ? {...x, content: x.content.map((y, j) => j === iidx ? {...y, link: e.currentTarget.value} : y)} : x))} className="w-[10svw]" />
+                        </div>
+                    })}
+                </div>
+
+            </Tabs.Panel>
+        );
     });
 
     return (
@@ -304,9 +355,9 @@ export default function Options() {
                     </Tabs.Panel>
 
                     <Tabs.Panel value="apps">
-                        <Accordion multiple defaultValue={["clock","date","lists"]}>
+                        <Accordion multiple >
                             <Accordion.Item value="clock" key="clock">
-                                <Accordion.Control icon={<Icon icon="tabler:clock" />}><Text>Clock</Text></Accordion.Control>
+                                <Accordion.Control icon={<Icon icon="tabler:clock" />}><Text size="xl">Clock</Text></Accordion.Control>
                                 <Accordion.Panel>
                                     <div className="flex flex-col gap-2">
                                         <div className="flex gap-2 items-center">
@@ -337,7 +388,7 @@ export default function Options() {
                                         </div>
                                         <div className="flex flex-col border p-1 gap-1 mb-1">
                                             <div className="flex gap-2">
-                                                <TextInput label="User name" value={clock.greet.name} onChange={(e)=>setClock({...clock, greet: {...clock.greet, name: e.currentTarget.value}})} className="w-[10svw]" placeholder="User"/>
+                                                <TextInput label="Your name" value={clock.greet.name} onChange={(e)=>setClock({...clock, greet: {...clock.greet, name: e.currentTarget.value}})} className="w-[10svw]" placeholder="User"/>
                                                 <TextInput label="Morning" value={clock.greet.morning} onChange={(e)=>setClock({...clock, greet: {...clock.greet, morning: e.currentTarget.value}})} className="w-[10svw]" placeholder="Good morning,"/>
                                                 <TextInput label="Afternoon" value={clock.greet.afternoon} onChange={(e)=>setClock({...clock, greet: {...clock.greet, afternoon: e.currentTarget.value}})} className="w-[10svw]" placeholder="Good afternoon,"/>
                                                 <TextInput label="Evening" value={clock.greet.evening} onChange={(e)=>setClock({...clock, greet: {...clock.greet, evening: e.currentTarget.value}})} className="w-[10svw]" placeholder="Good evening,"/>
@@ -350,7 +401,7 @@ export default function Options() {
                             <Accordion.Item value="date" key="date">
                                 <Accordion.Control icon={<Icon icon="bi:calendar2-date" />}>
                                 <div className="flex gap-1 items-center">
-                                <Text>Date</Text>
+                                <Text size="xl">Date</Text>
                                 <HoverCard>
                                     <HoverCard.Target>
                                         <Icon icon="material-symbols:info" height="20" />
@@ -369,13 +420,13 @@ export default function Options() {
                             <Accordion.Item value="lists" key="lists">
                                 <Accordion.Control icon={<Icon icon="material-symbols:list" />}>
                                     <div className="flex gap-1 items-center">
-                                    <Text>Lists</Text>
+                                    <Text size="xl">Lists</Text>
                                         <HoverCard>
                                             <HoverCard.Target>
                                                 <Icon icon="material-symbols:info" height="20" />
                                             </HoverCard.Target>
                                             <HoverCard.Dropdown>
-                                                <Text>Lists are assigned columns first, one by one</Text>
+                                                <Text>Different lists are assigned to the page columns first, one by one</Text>
                                             </HoverCard.Dropdown>
                                         </HoverCard>
                                     </div>
@@ -390,9 +441,32 @@ export default function Options() {
                                     </Tabs>
                                 </Accordion.Panel>                       
                             </Accordion.Item>
+                            <Accordion.Item value="cards" key="cards">
+                                <Accordion.Control icon={<Icon icon="material-symbols:cards" />}>
+                                <div className="flex gap-1 items-center">
+                                    <Text size="xl">Cards</Text>
+                                    <HoverCard>
+                                        <HoverCard.Target>
+                                            <Icon icon="material-symbols:info" height="20" />
+                                        </HoverCard.Target>
+                                        <HoverCard.Dropdown>
+                                            <Text>Different card boxes are assigned to the page columns first, one by one</Text>
+                                        </HoverCard.Dropdown>
+                                    </HoverCard>
+                                </div>
+                                </Accordion.Control>
+                                <Accordion.Panel>
+                                    <Tabs value={cardFocus} onChange={handleCardTabsSelect} activateTabWithKeyboard={false} variant="pills">
+                                        <Tabs.List>
+                                            {cardTabs}
+                                            <Tabs.Tab value="add" leftSection={<Icon icon="ic:sharp-plus" />} />
+                                        </Tabs.List>
+                                        {cardPanels}
+                                    </Tabs>
+                                </Accordion.Panel>
+                            </Accordion.Item>
                         </Accordion>
                     </Tabs.Panel>
-
                 </Tabs>
             </form>
     )
