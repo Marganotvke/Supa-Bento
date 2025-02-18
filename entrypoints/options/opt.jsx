@@ -19,7 +19,7 @@ const ItemList = ({ idx, item, items, setItems, cols, rows, gap }) => (
     <select key={idx} style={{ "--hCalc": `${(80 / rows)}%`, "--wCalc": `${(80 / cols)}%`, "--gapCalc": `${gap / 6}vw` }} className={`${idx >= rows * cols ? "hidden" : null} h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-slate-700 rounded-md text-center`} value={item} onChange={(e) => { setItems([...items].map((x, i) => i === idx ? e.target.value : x)) }}>
         <option value="clock">Clock</option>
         <option value="cardbox">Cards</option>
-        <option value="memo">Memo</option>
+        <option value="memo">Memo (local only)</option>
         <option value="listbox">Lists</option>
         <option value="date">Date</option>
     </select>
@@ -304,7 +304,7 @@ export default function Options() {
         if (typeof res === "undefined") {
             console.log("User saved changes");
             setDialogOpened(true);
-            setTimeout(() => setDialogOpened(false), 5000);
+            setTimeout(() => setDialogOpened(false), 3000);
         } else {
             console.log(`Error at saving: ${res}`);
             setSubmitDialogFailed(true);
@@ -350,7 +350,7 @@ export default function Options() {
                     </div>
                     <div>
                         <div className="flex gap-1 mt-1">
-                            <Text>Items</Text><Text className="italic">(Columns first, actual gap is bigger)</Text>
+                            <Text>Items</Text><Text className="italic">(Arranged columns first)</Text>
                         </div>
                         <div className="h-[35svw] aspect-video flex flex-col flex-wrap border justify-center items-center">
                             {items.map((item, idx) => _itemsLists(idx, item))}

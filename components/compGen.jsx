@@ -13,7 +13,7 @@ export default function ComponentGenerator({config}){
     var thresh = 0;
     if(config.layout.cols % 2 !== 0){
         thresh = (config.layout.cols - 1)/2;
-        console.log(`Your layout has an odd number of columns (${config.layout.cols}). Make sure it is a multiple of 2 for best results.`);
+        console.log(`Your layout has an odd number of columns (${config.layout.cols}). Make sure it is a multiple of 2.`);
     }else{
         thresh = config.layout.cols/2;
     }
@@ -21,6 +21,7 @@ export default function ComponentGenerator({config}){
     return <>
         {components.map((comp, i) => {
             const isHidden = i > thresh;
+            if (i >= config.layout.cols*config.layout.rows) return;
                     switch (comp) {
                         case "clock":
                             return <Clock key={i} config={config} isHidden={isHidden}/>
