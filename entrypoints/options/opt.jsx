@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { DefaultCONFIG } from '../../assets/defaultConfig';
 import { storage } from "wxt/storage";
-import { ActionIcon, Accordion, Anchor, AngleSlider, Button, Collapse, ColorInput, FileInput, HoverCard, Image, NumberInput, Select, Slider, Switch, Text, TextInput, Tabs, Checkbox, SegmentedControl, Group, Divider, Modal, Dialog } from "@mantine/core";
+import { ActionIcon, Accordion, Anchor, AngleSlider, Button, Checkbox, Collapse, ColorInput, Dialog, Divider, FileInput, Group, HoverCard, Image, Modal, NumberInput, Select, SegmentedControl, Slider, Switch, Tabs, Text, TextInput, Space } from "@mantine/core";
 import { Icon } from '@iconify/react';
+import { bg, se } from "date-fns/locale";
 
 function _arrLenCh(arr, len) {
     //helper function to change array length
@@ -15,13 +16,25 @@ function _arrLenCh(arr, len) {
     return tmpArr;
 }
 
+function isValidHttpUrl(string) {
+    let url;
+    
+    try {
+        url = new URL(string);
+    } catch (_) {
+        return false;  
+    }
+
+    return url.protocol === "http:" || url.protocol === "https:";
+}
+
 const ItemList = ({ idx, item, items, setItems, cols, rows, gap }) => (
-    <select key={idx} style={{ "--hCalc": `${(80 / rows)}%`, "--wCalc": `${(80 / cols)}%`, "--gapCalc": `${gap / 6}vw` }} className={`${idx >= rows * cols ? "hidden" : null} h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-slate-700 rounded-md text-center`} value={item} onChange={(e) => { setItems([...items].map((x, i) => i === idx ? e.target.value : x)) }}>
-        <option value="clock">Clock</option>
-        <option value="cardbox">Cards</option>
-        <option value="memo">Memo (local only)</option>
-        <option value="listbox">Lists</option>
-        <option value="date">Date</option>
+    <select key={idx+10} style={{ "--hCalc": `${(80 / rows)}%`, "--wCalc": `${(80 / cols)}%`, "--gapCalc": `${gap / 6}vw` }} className={`${idx >= rows * cols ? "hidden" : null} h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-slate-700 rounded-md text-center`} value={item} onChange={(e) => { setItems([...items].map((x, i) => i === idx ? e.target.value : x)) }}>
+        <option key={0} value="clock">Clock</option>
+        <option key={1} value="cardbox">Cards</option>
+        <option key={2} value="memo">Quick Memo</option>
+        <option key={3} value="listbox">Lists</option>
+        <option key={4} value="date">Date</option>
     </select>
 );
 
@@ -35,7 +48,7 @@ const ListPanel = ({ list, idx, lists, setLists }) => (
         <Text fw={500}>Sublists</Text>
         <div className="flex gap-2">
             <SublistPanel list={list} idx={idx} sublistIdx={0} lists={lists} setLists={setLists} />
-            <SublistPanel list={list} idx={idx} sublistIdx={1} lists={lists} setLists={setLists} />
+            <SublistPanel list={list} idx={idx+1} sublistIdx={1} lists={lists} setLists={setLists} />
         </div>
     </Tabs.Panel>
 );
@@ -78,6 +91,8 @@ export default function Options() {
     const [fetchFailed, setFetchFailed] = useState(false);
     const [submitDialogFailed, setSubmitDialogFailed] = useState(false);
     const [submitFailContent, setSubmitFailContent] = useState("");
+    const [bgUseUrl, setBgUseUrl] = useState(false);
+    const [bgImgErr, setBgImgErr] = useState(false);
 
     //see default config
     //layout
@@ -112,7 +127,7 @@ export default function Options() {
         },
         img: "https://picsum.photos/1920/1080"
     });
-    const [tmpBg, setTmpBg] = useState(null);
+    const [tmpBg, setTmpBg] = useState("");
     const [animation, setAnimation] = useState({
         active: true,
         duration: 200
@@ -147,6 +162,11 @@ export default function Options() {
         init: () => { return DefaultCONFIG },
     })
 
+    const usrBgImg = storage.defineItem("local:userBgImage", {
+        fallback: "https://picsum.photos/1920/1080",
+        init: () => { return "https://picsum.photos/1920/1080" },
+    })
+
     const fetchUsrConfigs = async () => {
         try {
             const fetchedConfig = await usrConfigStore.getValue();
@@ -168,6 +188,8 @@ export default function Options() {
             setLists(fetchedConfig.apps?.lists || DefaultCONFIG.apps.lists);
             setCards(fetchedConfig.apps?.cards || DefaultCONFIG.apps.cards);
 
+            const fetchedBgImg = await usrBgImg.getValue();
+            setBgImg({ ...bgImg, img: fetchedBgImg });
         } catch (e) {
             console.error(e);
             setFetchFailed(true);
@@ -222,12 +244,12 @@ export default function Options() {
     }
 
     const cardTabs = cards
-        .map((card, idx) => {
+        .map((_, idx) => {
             return <Tabs.Tab key={idx} value={`card${idx}`} rightSection={<div onClick={handleDeleteCard} className="hover:bg-slate-800 p-1 rounded-md -m-1"><Icon icon="material-symbols:close" /></div>}>{`Cards ${idx + 1}`}</Tabs.Tab>;
         });
 
     const pillTabs = lists
-        .map((list, idx) => {
+        .map((_, idx) => {
             return <Tabs.Tab key={idx} value={`list${idx}`} rightSection={<div onClick={handleDeleteList} className="hover:bg-slate-800 p-1 -m-1 rounded-md"><Icon icon="material-symbols:close" /></div>}>{`List ${idx + 1}`}</Tabs.Tab>;
         });
 
@@ -289,7 +311,7 @@ export default function Options() {
                 app: app,
                 text: text,
                 icon: icon,
-                bgImg: bgImg,
+                bgImg: { bgSize: bgImg.bgSize, bgCol: bgImg.bgCol },
                 animation: animation,
                 borderRadius: borderRadius
             },
@@ -301,11 +323,14 @@ export default function Options() {
             }
         }
         const res = await usrConfigStore.setValue(packagedConfig).catch((err) => err);
+        await saveUserImageToLocalStorage(tmpBg);
         if (typeof res === "undefined") {
             console.log("User saved changes");
+            setTmpBg("");
             setDialogOpened(true);
             setTimeout(() => setDialogOpened(false), 3000);
         } else {
+            setSubmitFailContent(res);
             console.log(`Error at saving: ${res}`);
             setSubmitDialogFailed(true);
         }
@@ -316,6 +341,10 @@ export default function Options() {
         const res = await usrConfigStore.removeValue().catch((err) => err);
         if (typeof res !== "undefined") {
             console.error(`Error at reset: ${res}`);
+        }
+        const ress = await usrBgImg.removeValue().catch((err) => err);
+        if (typeof ress !== "undefined") {
+            console.error(`Error at background image reset: ${ress}`);
         }
         setModalOpened(false);
         window.location.reload();
@@ -329,6 +358,40 @@ export default function Options() {
             console.error(`Error at cancel: ${res}`);
         }
         console.log("User cancelled changes");
+    }
+
+    const saveUserImageToLocalStorage = async (file) => {
+        const res = await usrBgImg.setValue(file).catch((err) => err);
+        if (typeof res !== "undefined") {
+            console.error(`Error at saving background image: ${res}`);
+        }
+    };
+
+    const tmpBgReader = (file) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            setTmpBg(reader.result);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    const handleBgUp = async () => {
+        var tmp;
+        if (!tmpBg || tmpBg === "") { 
+            setBgImgErr(true);
+            setTimeout(() => setBgImgErr(false), 3000);
+            return; 
+        } else { 
+            tmp = tmpBg; 
+        }
+        if(typeof tmp === "object") {
+            tmpBgReader(tmp);
+        }else if(!isValidHttpUrl(tmp)) { 
+            setBgImgErr(true);
+            setTimeout(() => setBgImgErr(false), 3000);
+            return; 
+        }
+        setBgImg({ ...bgImg, img: typeof tmp === "string" ? tmp : URL.createObjectURL(tmp) });
     }
 
     return (
@@ -380,17 +443,37 @@ export default function Options() {
                     </div>
                     <TextInput label="Icon Size" value={icon.size} onChange={(e) => setIcon({ size: e.currentTarget.value })} className="w-[7svw]" />
                     <div className="flex gap-1 mt-1">
-                        <Text fw={500}>Background</Text><Text className="italic">(color applies before background image)</Text>
+                        <Text fw={500}>Background</Text><Text className="italic">(Gradient color applies before background image)</Text>
                     </div>
                     <div className="flex flex-col border p-1 gap-1 mb-1">
                         <div className="flex items-center gap-5">
                             <Image src={bgImg.img} className="w-[15vw] h-[10vh] object-cover" />
-                            <FileInput label="Background Image" value={typeof tmpBg === "string" ? null : tmpBg} onChange={(e) => { setTmpBg(e) }} className="w-[15svw]" placeholder="Click to choose" accept="image/png,image/jpeg" clearable leftSection={<ActionIcon className="mr-1" onClick={() => {
-                                var tmp;
-                                if (!tmpBg) { return; } else { tmp = tmpBg; }
-                                setBgImg({ ...bgImg, img: typeof tmp === "string" ? tmp : URL.createObjectURL(tmp) });
-                                setTmpBg(null);
-                            }} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />
+                            <div className="flex flex-col items-center gap-1">
+                                <Text>Input Url</Text>
+                                <Switch checked={bgUseUrl} onChange={(e) => setBgUseUrl(e.currentTarget.checked)} />
+                            </div>
+                            {
+                                !bgUseUrl ? 
+                                (<HoverCard>
+                                    <HoverCard.Target>
+                                        <FileInput label="Background Image" value={typeof tmpBg === "string" ? null : tmpBg} onChange={(e) => { setTmpBg(e); setBgImgErr(false) }} error={bgImgErr} className="w-[15svw]" placeholder="Click here to choose" accept="image/png,image/jpeg" clearable leftSection={<ActionIcon className="mr-1" onClick={handleBgUp} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />
+                                    </HoverCard.Target>
+                                    <HoverCard.Dropdown>
+                                        <Text c="red">Background Images will not be synced across devices!</Text>
+                                        <Space />Max size: 10MB
+                                        <Space />Supports: PNG, JPEG
+                                    </HoverCard.Dropdown>
+                                </HoverCard>)
+                                :
+                                (<HoverCard>
+                                    <HoverCard.Target>
+                                        <TextInput label="Background Url" value={typeof tmpBg !== "string" ? "" : tmpBg} onChange={(e)=>{setTmpBg(e.currentTarget.value) ; setBgImgErr(false)}} error={bgImgErr} className="w-[25svw]" leftSection={<ActionIcon className="mr-1" onClick={handleBgUp} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />
+                                    </HoverCard.Target>
+                                    <HoverCard.Dropdown>
+                                        <Text c="red">Background Images will not be synced across devices!</Text>
+                                    </HoverCard.Dropdown>
+                                </HoverCard>)
+                            }
                             <Select label="Background Size" value={bgImg.bgSize} className="w-[15vw]"
                                 data={[{ value: 'cover', label: "Cover" }, { value: 'contain', label: "Contain" }, { value: 'auto', label: "Auto" }]}
                                 onChange={(val, _) => setBgImg({ ...bgImg, bgSize: val })} allowDeselect={false} />

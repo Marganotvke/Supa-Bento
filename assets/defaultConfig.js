@@ -167,12 +167,12 @@ export const DefaultCONFIG = {
                         iconTitle: "Card 4"
                     },
                     {
-                        link: "https://icon-sets.iconify.design/",
+                        link: "https://iconify.design/",
                         iconType: true,
                         iconTitle: "ion:cloudy-night-outline",
                     },
                     {
-                        link: "https://icon-sets.iconify.design/",
+                        link: "https://iconify.design/",
                         iconType: true,
                         iconTitle: "lucide:tractor",
                     },

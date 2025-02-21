@@ -6,7 +6,7 @@ function _inlineListElements(idx, item, theme, anim){
     const inlineTitle = item.title;
 
     return <a href={item.link} key={idx} 
-        style={{transition: `${theme.animation.duration}ms ease-in-out`, '--hover': theme.accent, "--hoverText": theme.text.color.sfg, borderRadius: `${theme.borderRadius}px`, ...anim}} 
+        style={{'--hover': theme.accent, "--hoverText": theme.text.color.sfg, borderRadius: `${theme.borderRadius}px`, ...anim}} 
         className="w-[80%] p-2 min-w-0 items-center justify-center inline-flex hover:text-[--hoverText] hover:bg-[--hover]">
             {inlineIcon}{"\xa0"}{inlineTitle}
     </a>
@@ -16,7 +16,7 @@ function _listItem(idx, itemList, config, anim){
     const theme = config.theme;
     const listIconTitle = itemList.iconType ? <Icon icon={itemList.iconTitle} /> : itemList.iconTitle;
 
-    return <div key={idx} className="flex flex-col drop-shadow-lg hover:-translate-y-1" style={{borderRadius: theme.borderRadius, backgroundColor: theme.app, ...anim}}>
+    return <div key={idx} className={`flex flex-col drop-shadow-lg hover:-translate-y-1 `} style={{borderRadius: theme.borderRadius, backgroundColor: theme.app, ...anim}}>
         <h1 style={{fontSize: theme.icon.size, color: theme.text.color.fg}}
             className="flex flex-1 text-center items-center justify-center p-2 h-[15%]">
             {listIconTitle}

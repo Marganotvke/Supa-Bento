@@ -12,9 +12,15 @@ import { storage } from "wxt/storage";
         }
     );
 
+    const usrBgImg = storage.defineItem("local:userBgImage", {
+        fallback: "https://picsum.photos/1920/1080",
+        init: () => { return "https://picsum.photos/1920/1080" },
+    })
+
     const config = await usrConfig.getValue();
+    const bgImg = await usrBgImg.getValue();
     const theme = config.theme;;
-    const bg = {"backgroundSize": theme.bgImg.bgSize, backgroundImage: [`linear-gradient(${theme.bgImg.bgCol.deg}deg, ${theme.bgImg.bgCol.start}, ${theme.bgImg.bgCol.end})`, `url(${theme.bgImg.img})`]};
+    const bg = {"backgroundSize": theme.bgImg.bgSize, backgroundImage: [`linear-gradient(${theme.bgImg.bgCol.deg}deg, ${theme.bgImg.bgCol.start}, ${theme.bgImg.bgCol.end})`, `url(${bgImg})`]};
 
     ReactDOM.createRoot(document.getElementById('root')).render(
         <React.StrictMode>
