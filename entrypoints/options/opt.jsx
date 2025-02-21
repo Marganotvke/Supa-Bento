@@ -17,6 +17,7 @@ function _arrLenCh(arr, len) {
 }
 
 function isValidHttpUrl(string) {
+    //https://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
     let url;
     
     try {
@@ -29,12 +30,12 @@ function isValidHttpUrl(string) {
 }
 
 const ItemList = ({ idx, item, items, setItems, cols, rows, gap }) => (
-    <select key={idx+10} style={{ "--hCalc": `${(80 / rows)}%`, "--wCalc": `${(80 / cols)}%`, "--gapCalc": `${gap / 6}vw` }} className={`${idx >= rows * cols ? "hidden" : null} h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-slate-700 rounded-md text-center`} value={item} onChange={(e) => { setItems([...items].map((x, i) => i === idx ? e.target.value : x)) }}>
-        <option key={0} value="clock">Clock</option>
-        <option key={1} value="cardbox">Cards</option>
-        <option key={2} value="memo">Quick Memo</option>
-        <option key={3} value="listbox">Lists</option>
-        <option key={4} value="date">Date</option>
+    <select key={idx} style={{ "--hCalc": `${(80 / rows)}%`, "--wCalc": `${(80 / cols)}%`, "--gapCalc": `${gap / 6}vw` }} className={`${idx >= rows * cols ? "hidden" : null} h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-slate-700 rounded-md text-center`} value={item} onChange={(e) => { setItems([...items].map((x, i) => i === idx ? e.target.value : x)) }}>
+        <option value="clock">Clock</option>
+        <option value="cardbox">Cards</option>
+        <option value="memo">Quick Memo</option>
+        <option value="listbox">Lists</option>
+        <option value="date">Date</option>
     </select>
 );
 
@@ -48,7 +49,7 @@ const ListPanel = ({ list, idx, lists, setLists }) => (
         <Text fw={500}>Sublists</Text>
         <div className="flex gap-2">
             <SublistPanel list={list} idx={idx} sublistIdx={0} lists={lists} setLists={setLists} />
-            <SublistPanel list={list} idx={idx+1} sublistIdx={1} lists={lists} setLists={setLists} />
+            <SublistPanel list={list} idx={idx} sublistIdx={1} lists={lists} setLists={setLists} />
         </div>
     </Tabs.Panel>
 );
@@ -63,7 +64,7 @@ const SublistPanel = ({ list, idx, sublistIdx, lists, setLists }) => (
                 </HoverCard.Target>
                 <HoverCard.Dropdown>
                     <Anchor href="https://icon-sets.iconify.design/" target="_blank">Iconify Icons</Anchor>
-                    <br />Disable to use emoji
+                    <Space />Disable to use emoji
                 </HoverCard.Dropdown>
             </HoverCard>
         </div>
@@ -91,7 +92,6 @@ export default function Options() {
     const [fetchFailed, setFetchFailed] = useState(false);
     const [submitDialogFailed, setSubmitDialogFailed] = useState(false);
     const [submitFailContent, setSubmitFailContent] = useState("");
-    const [bgUseUrl, setBgUseUrl] = useState(false);
     const [bgImgErr, setBgImgErr] = useState(false);
 
     //see default config
@@ -125,7 +125,8 @@ export default function Options() {
             end: "rgba(0,0,0,0.4)",
             deg: 0
         },
-        img: "https://picsum.photos/1920/1080"
+        img: "https://picsum.photos/1920/1080",
+        imgIsUrl: true
     });
     const [tmpBg, setTmpBg] = useState("");
     const [animation, setAnimation] = useState({
@@ -205,7 +206,7 @@ export default function Options() {
     }, [cols, rows])
 
     const _itemsLists = (idx, item) => (
-        <ItemList idx={idx} item={item} items={items} setItems={setItems} cols={cols} rows={rows} gap={gap} />
+        <ItemList key={idx} idx={idx} item={item} items={items} setItems={setItems} cols={cols} rows={rows} gap={gap} />
     );
 
     const [listFocus, setListFocus] = useState(``);
@@ -275,7 +276,7 @@ export default function Options() {
                             </HoverCard.Target>
                             <HoverCard.Dropdown>
                                 <Anchor href="https://icon-sets.iconify.design/" target="_blank">Iconify Icons</Anchor>
-                                <br />Disable to use emoji
+                                <Space />Disable to use emoji
                             </HoverCard.Dropdown>
                         </HoverCard>
                     </div>
@@ -311,7 +312,7 @@ export default function Options() {
                 app: app,
                 text: text,
                 icon: icon,
-                bgImg: { bgSize: bgImg.bgSize, bgCol: bgImg.bgCol },
+                bgImg: { bgSize: bgImg.bgSize, bgCol: bgImg.bgCol, img: bgImg.imgIsUrl ? tmpBg : "" },
                 animation: animation,
                 borderRadius: borderRadius
             },
@@ -323,7 +324,9 @@ export default function Options() {
             }
         }
         const res = await usrConfigStore.setValue(packagedConfig).catch((err) => err);
-        await saveUserImageToLocalStorage(tmpBg);
+        if(!bgImg.imgIsUrl){
+            await saveUserImageToLocalStorage(tmpBg);
+        }
         if (typeof res === "undefined") {
             console.log("User saved changes");
             setTmpBg("");
@@ -399,7 +402,7 @@ export default function Options() {
             <Tabs defaultValue="layout">
                 <Tabs.List>
                     <Tabs.Tab value="layout" leftSection={<Icon icon={"ph:layout"} />}>Layout</Tabs.Tab>
-                    <Tabs.Tab value="theme" leftSection={<Icon icon={"ph:paint-brush-household"} />}>Theme</Tabs.Tab>
+                    <Tabs.Tab value="theme" leftSection={<Icon icon={"ph:paint-Spaceush-household"} />}>Theme</Tabs.Tab>
                     <Tabs.Tab value="apps" leftSection={<Icon icon={"ph:app-window"} />}>Apps</Tabs.Tab>
                 </Tabs.List>
                 <Tabs.Panel value="layout">
@@ -450,33 +453,36 @@ export default function Options() {
                             <Image src={bgImg.img} className="w-[15vw] h-[10vh] object-cover" />
                             <div className="flex flex-col items-center gap-1">
                                 <Text>Input Url</Text>
-                                <Switch checked={bgUseUrl} onChange={(e) => setBgUseUrl(e.currentTarget.checked)} />
+                                <Switch checked={bgImg.imgIsUrl} onChange={(e) => {setBgImg({...bgImg, imgIsUrl: e.currentTarget.checked})}} />
                             </div>
                             {
-                                !bgUseUrl ? 
+                                !bgImg.imgIsUrl ? 
                                 (<HoverCard>
                                     <HoverCard.Target>
                                         <FileInput label="Background Image" value={typeof tmpBg === "string" ? null : tmpBg} onChange={(e) => { setTmpBg(e); setBgImgErr(false) }} error={bgImgErr} className="w-[15svw]" placeholder="Click here to choose" accept="image/png,image/jpeg" clearable leftSection={<ActionIcon className="mr-1" onClick={handleBgUp} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />
                                     </HoverCard.Target>
                                     <HoverCard.Dropdown>
-                                        <Text c="red">Background Images will not be synced across devices!</Text>
+                                        <Text c="red">Uploaded ackground Images will NOT be synced across devices!</Text>
                                         <Space />Max size: 10MB
                                         <Space />Supports: PNG, JPEG
                                     </HoverCard.Dropdown>
                                 </HoverCard>)
                                 :
-                                (<HoverCard>
-                                    <HoverCard.Target>
-                                        <TextInput label="Background Url" value={typeof tmpBg !== "string" ? "" : tmpBg} onChange={(e)=>{setTmpBg(e.currentTarget.value) ; setBgImgErr(false)}} error={bgImgErr} className="w-[25svw]" leftSection={<ActionIcon className="mr-1" onClick={handleBgUp} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />
-                                    </HoverCard.Target>
-                                    <HoverCard.Dropdown>
-                                        <Text c="red">Background Images will not be synced across devices!</Text>
-                                    </HoverCard.Dropdown>
-                                </HoverCard>)
+                                (<TextInput label="Background Url" value={typeof tmpBg !== "string" ? "" : tmpBg} onChange={(e)=>{setTmpBg(e.currentTarget.value) ; setBgImgErr(false)}} error={bgImgErr} className="w-[25svw]" leftSection={<ActionIcon className="mr-1" onClick={handleBgUp} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />)
                             }
                             <Select label="Background Size" value={bgImg.bgSize} className="w-[15vw]"
                                 data={[{ value: 'cover', label: "Cover" }, { value: 'contain', label: "Contain" }, { value: 'auto', label: "Auto" }]}
                                 onChange={(val, _) => setBgImg({ ...bgImg, bgSize: val })} allowDeselect={false} />
+                            <HoverCard className="-ml-2">
+                                    <HoverCard.Target>
+                                        <Icon icon="material-symbols:info" height="24" />
+                                    </HoverCard.Target>
+                                    <HoverCard.Dropdown>
+                                        <Text c="cyan">Cover</Text>Scale the image until it fills the background, cropping if nessesary
+                                        <Space h="md"/><Text c="lime">Contain</Text>Scale the image until it fits the background, cropping if nessesary
+                                        <Space h="md"/><Text c="orange">Auto</Text>Use the image's original size
+                                    </HoverCard.Dropdown>
+                                </HoverCard>
                         </div>
                         <div className="flex items-center gap-5">
                             <ColorInput label="Background Gradient Start" value={bgImg.bgCol.start} onChange={(e) => setBgImg({ ...bgImg, bgCol: { ...bgImg.bgCol, start: e } })} format="rgba" className="w-[15vw]" />

@@ -18,8 +18,9 @@ import { storage } from "wxt/storage";
     })
 
     const config = await usrConfig.getValue();
-    const bgImg = await usrBgImg.getValue();
-    const theme = config.theme;;
+    const theme = config.theme;
+    const bgImg = !theme.bgImg.imgIsUrl ? await usrBgImg.getValue() : theme.bgImg.img;
+
     const bg = {"backgroundSize": theme.bgImg.bgSize, backgroundImage: [`linear-gradient(${theme.bgImg.bgCol.deg}deg, ${theme.bgImg.bgCol.start}, ${theme.bgImg.bgCol.end})`, `url(${bgImg})`]};
 
     ReactDOM.createRoot(document.getElementById('root')).render(
