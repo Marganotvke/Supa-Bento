@@ -33,7 +33,7 @@ function _time(now, config){
     return {hours, minutes, seconds, ampm, sep, greet};
 }
 
-export default function Clock({config, isHidden}){
+export default function Clock({config, isHidden, span}){
     const [now, setNow] = useState(new Date());
     const {hours, minutes, seconds, ampm, sep, greet} = _time(now, config);
     const timeString = `${hours}${sep}${minutes}${config.apps.clock.showSec ? sep : ""}${seconds} ${config.apps.clock.format12 ? ampm : ""}`;
@@ -47,7 +47,7 @@ export default function Clock({config, isHidden}){
     },[]);
 
     return (
-        <div className={`md:flex ${isHidden? "hidden" : "flex"} flex-col py-8 items-center justify-center`}>
+        <div className={`md:flex ${isHidden? "hidden" : "flex"} flex-col py-8 items-center justify-center ${span ? "col-span-4" : ""}`}>
             <div className="flex-1 flex font-bold text-center items-center pb-4 leading-[1]" style={{fontSize: theme.text.size.primary, color: theme.text.color.fg}}>
                 {timeString}
             </div>

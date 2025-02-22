@@ -7,7 +7,7 @@ function _inlineListElements(idx, item, theme, anim){
 
     return <a href={item.link} key={idx} 
         style={{'--hover': theme.accent, "--hoverText": theme.text.color.sfg, borderRadius: `${theme.borderRadius}px`, ...anim}} 
-        className="w-[80%] p-2 min-w-0 items-center justify-center inline-flex hover:text-[--hoverText] hover:bg-[--hover]">
+        className={`w-[80%] p-2 min-w-0 items-center justify-center inline-flex hover:text-[--hoverText] hover:bg-[--hover] ${theme.text.isBold ? "font-semibold" : ""}`}>
             {inlineIcon}{"\xa0"}{inlineTitle}
     </a>
 }

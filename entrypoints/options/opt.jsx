@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { DefaultCONFIG } from '../../assets/defaultConfig';
 import { storage } from "wxt/storage";
-import { ActionIcon, Accordion, Anchor, AngleSlider, Button, Checkbox, Collapse, ColorInput, Dialog, Divider, FileInput, Group, HoverCard, Image, Modal, NumberInput, Select, SegmentedControl, Slider, Switch, Tabs, Text, TextInput, Space } from "@mantine/core";
+import { ActionIcon, Accordion, Anchor, AngleSlider, Button, Checkbox, Collapse, ColorInput, Dialog, Divider, FileInput, Group, HoverCard, Image, Modal, NumberInput, Select, SegmentedControl, Slider, Switch, Tabs, Text, TextInput, Space, UnstyledButton, CloseButton, Stack } from "@mantine/core";
 import { Icon } from '@iconify/react';
-import { bg, se } from "date-fns/locale";
 
 function _arrLenCh(arr, len) {
     //helper function to change array length
@@ -17,7 +16,6 @@ function _arrLenCh(arr, len) {
 }
 
 function isValidHttpUrl(string) {
-    //https://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
     let url;
     
     try {
@@ -29,62 +27,11 @@ function isValidHttpUrl(string) {
     return url.protocol === "http:" || url.protocol === "https:";
 }
 
-const ItemList = ({ idx, item, items, setItems, cols, rows, gap }) => (
-    <select key={idx} style={{ "--hCalc": `${(80 / rows)}%`, "--wCalc": `${(80 / cols)}%`, "--gapCalc": `${gap / 6}vw` }} className={`${idx >= rows * cols ? "hidden" : null} h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-slate-700 rounded-md text-center`} value={item} onChange={(e) => { setItems([...items].map((x, i) => i === idx ? e.target.value : x)) }}>
-        <option value="clock">Clock</option>
-        <option value="cardbox">Cards</option>
-        <option value="memo">Quick Memo</option>
-        <option value="listbox">Lists</option>
-        <option value="date">Date</option>
-    </select>
-);
+function isDataURL(s) {
+    // gist.github.com/khanzadimahdi/bab8a3416bdb764b9eda5b38b35735b8
+    return /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/.test(s);
+}
 
-const ListPanel = ({ list, idx, lists, setLists }) => (
-    <Tabs.Panel key={idx} value={`list${idx}`} >
-        <Text fw={500}>Layout</Text>
-        <div className="flex gap-2 border p-1 items-center mb-1">
-            <NumberInput label="Sublists" value={list.layout.cols} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, layout: { ...x.layout, cols: e } } : x))} min={1} max={2} step={1} className="w-[7svw]" />
-            <NumberInput label="Gap (rem)" value={list.layout.gap} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, layout: { ...x.layout, gap: e } } : x))} min={0} max={6} step={1} className="w-[7svw]" />
-        </div>
-        <Text fw={500}>Sublists</Text>
-        <div className="flex gap-2">
-            <SublistPanel list={list} idx={idx} sublistIdx={0} lists={lists} setLists={setLists} />
-            <SublistPanel list={list} idx={idx} sublistIdx={1} lists={lists} setLists={setLists} />
-        </div>
-    </Tabs.Panel>
-);
-
-const SublistPanel = ({ list, idx, sublistIdx, lists, setLists }) => (
-    <div className={`${list.layout.cols >= sublistIdx + 1 ? "flex" : "hidden"} flex-col gap-2 border p-1 justify-center m-1`}>
-        <div className="flex gap-2 items-center">
-            <Checkbox label="Use Iconify Icon as sublist name?" checked={list.content[sublistIdx].iconType} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, iconType: e.currentTarget.checked } : y) } : x))} />
-            <HoverCard>
-                <HoverCard.Target>
-                    <Icon icon="material-symbols:info" height="20" />
-                </HoverCard.Target>
-                <HoverCard.Dropdown>
-                    <Anchor href="https://icon-sets.iconify.design/" target="_blank">Iconify Icons</Anchor>
-                    <Space />Disable to use emoji
-                </HoverCard.Dropdown>
-            </HoverCard>
-        </div>
-        <div className="flex gap-1">
-            <TextInput label={`Sublist ${sublistIdx + 1} ${list.content[sublistIdx].iconType ? "Icon" : ""} Name`} value={list.content[sublistIdx].iconTitle} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, iconTitle: e.currentTarget.value } : y) } : x))} className="w-[15svw]" />
-            <NumberInput label="Gap (rem)" value={list.content[sublistIdx].gap} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, gap: e } : y) } : x))} min={0} max={6} step={1} className="w-[7svw]" />
-        </div>
-        {list.content[sublistIdx].items.map((item, iidx) => (
-            <div key={`lsi${idx}${iidx}`} className="flex gap-1">
-                <div className="flex flex-col gap-2 items-center w-[5svw]">
-                    <Text size={"sm"} className="text-wrap text-center">Use Iconify</Text>
-                    <Switch checked={item.iconType} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, iconType: e.currentTarget.checked } : z) } : y) } : x))} />
-                </div>
-                <TextInput label={`Item ${iidx + 1} Icon`} value={item.icon} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, icon: e.currentTarget.value } : z) } : y) } : x))} className="w-[10svw]" />
-                <TextInput label={`Item ${iidx + 1} Title`} value={item.title} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, title: e.currentTarget.value } : z) } : y) } : x))} className="w-[10svw]" />
-                <TextInput label={`Item ${iidx + 1} Link`} value={item.link} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, link: e.currentTarget.value } : z) } : y) } : x))} className="w-[10svw]" />
-            </div>
-        ))}
-    </div>
-);
 
 export default function Options() {
     const [modalOpened, setModalOpened] = useState(false);
@@ -93,6 +40,8 @@ export default function Options() {
     const [submitDialogFailed, setSubmitDialogFailed] = useState(false);
     const [submitFailContent, setSubmitFailContent] = useState("");
     const [bgImgErr, setBgImgErr] = useState(false);
+
+    const [forceEmpty, setForceEmpty] = useState(new Set());
 
     //see default config
     //layout
@@ -106,6 +55,7 @@ export default function Options() {
     const [app, setApp] = useState("#201e21");
     const [text, setText] = useState({
         font: "",
+        isBold: false,
         size: {
             primary: "11vh",
             secondary: "4vh",
@@ -199,14 +149,98 @@ export default function Options() {
 
     useEffect(() => {
         fetchUsrConfigs();
-    }, [])
+    }, []);
 
     useEffect(() => {
         setItems(_arrLenCh(items, cols * rows));
-    }, [cols, rows])
+    }, [cols, rows]);
 
     const _itemsLists = (idx, item) => (
-        <ItemList key={idx} idx={idx} item={item} items={items} setItems={setItems} cols={cols} rows={rows} gap={gap} />
+        <ItemList key={idx} idx={idx} item={item}  />
+    );
+
+    const getSecondIndex = (index) => {
+        return index + rows;
+    };
+
+    const handleItemListChange = (e, idx) => {
+        setItems([...items].map((x, i) => i === idx ? e.target.value : x));
+        const secondIndex = getSecondIndex(idx);
+        if(e.target.value === "clock2" || e.target.value === "date2") {
+            setForceEmpty(prev => new Set(prev).add(secondIndex)); 
+        } else {
+            setForceEmpty(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(secondIndex);
+                return newSet;
+            });
+        }
+    };
+
+    const ItemList = ({ idx, item }) => (
+        <select value={forceEmpty.has(idx) ? "empty" : item} key={idx} style={{ "--hCalc": `${(80 / rows)}%`, "--wCalc": `${(80 / cols)}%`, "--gapCalc": `${gap / 6}vw` }} disabled={forceEmpty.has(idx)} className={`${idx >= rows * cols ? "hidden" : null} h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-slate-700 rounded-md text-center`} onChange={(e) => handleItemListChange(e, idx)}>
+            <option value="clock">Clock</option>
+            {
+            idx < (rows * cols - rows) ?
+                <>
+                    <option value="clock2">Clock (2 cell wide)</option>
+                    <option value="date2">Date (2 cell wide)</option>
+                </>
+                : null
+            }
+            <option value="cardbox">Cards</option>
+            <option value="memo">Quick Memo</option>
+            <option value="listbox">Lists</option>
+            <option value="date">Date</option>
+            <option value="empty">Empty</option>
+        </select>
+    );
+    
+    const ListPanel = ({ list, idx, lists, setLists }) => (
+        <Tabs.Panel key={idx} value={`list${idx}`} >
+            <Text fw={500}>Layout</Text>
+            <div className="flex gap-2 border p-1 items-center mb-1">
+                <NumberInput label="Sublists" value={list.layout.cols} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, layout: { ...x.layout, cols: e } } : x))} min={1} max={2} step={1} className="w-[7svw]" />
+                <NumberInput label="Gap (rem)" value={list.layout.gap} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, layout: { ...x.layout, gap: e } } : x))} min={0} max={6} step={1} className="w-[7svw]" />
+            </div>
+            <Text fw={500}>Sublists</Text>
+            <div className="flex gap-2">
+                <SublistPanel list={list} idx={idx} sublistIdx={0} lists={lists} setLists={setLists} />
+                <SublistPanel list={list} idx={idx} sublistIdx={1} lists={lists} setLists={setLists} />
+            </div>
+        </Tabs.Panel>
+    );
+    
+    const SublistPanel = ({ list, idx, sublistIdx, lists, setLists }) => (
+        <div className={`${list.layout.cols >= sublistIdx + 1 ? "flex" : "hidden"} flex-col gap-2 border p-1 justify-center m-1`}>
+            <div className="flex gap-2 items-center">
+                <Checkbox label="Use Iconify Icon as sublist name?" checked={list.content[sublistIdx].iconType} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, iconType: e.currentTarget.checked } : y) } : x))} />
+                <HoverCard>
+                    <HoverCard.Target>
+                        <Icon icon="material-symbols:info" height="20" />
+                    </HoverCard.Target>
+                    <HoverCard.Dropdown>
+                        <Anchor href="https://icon-sets.iconify.design/" target="_blank">Iconify Icons</Anchor>
+                        <Space />Enable to use Iconify Icons as sublist names
+                    </HoverCard.Dropdown>
+                </HoverCard>
+            </div>
+            <div className="flex gap-1">
+                <TextInput label={`Sublist ${sublistIdx + 1} ${list.content[sublistIdx].iconType ? "Icon" : ""} Name`} value={list.content[sublistIdx].iconTitle} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, iconTitle: e.currentTarget.value } : y) } : x))} className="w-[15svw]" />
+                <NumberInput label="Gap (rem)" value={list.content[sublistIdx].gap} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, gap: e } : y) } : x))} min={0} max={6} step={1} className="w-[7svw]" />
+            </div>
+            {list.content[sublistIdx].items.map((item, iidx) => (
+                <div key={`lsi${idx}${iidx}`} className="flex gap-1">
+                    <div className="flex flex-col gap-2 items-center w-[5svw]">
+                        <Text size={"sm"} className="text-wrap text-center">Use Iconify</Text>
+                        <Switch checked={item.iconType} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, iconType: e.currentTarget.checked } : z) } : y) } : x))} />
+                    </div>
+                    <TextInput label={`Item ${iidx + 1} Icon`} value={item.icon} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, icon: e.currentTarget.value } : z) } : y) } : x))} className="w-[10svw]" />
+                    <TextInput label={`Item ${iidx + 1} Title`} value={item.title} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, title: e.currentTarget.value } : z) } : y) } : x))} className="w-[10svw]" />
+                    <TextInput label={`Item ${iidx + 1} Link`} value={item.link} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, link: e.currentTarget.value } : z) } : y) } : x))} className="w-[10svw]" />
+                </div>
+            ))}
+        </div>
     );
 
     const [listFocus, setListFocus] = useState(``);
@@ -276,7 +310,7 @@ export default function Options() {
                             </HoverCard.Target>
                             <HoverCard.Dropdown>
                                 <Anchor href="https://icon-sets.iconify.design/" target="_blank">Iconify Icons</Anchor>
-                                <Space />Disable to use emoji
+                                <Space />Enable to use Iconify Icons as card names
                             </HoverCard.Dropdown>
                         </HoverCard>
                     </div>
@@ -288,7 +322,7 @@ export default function Options() {
                                     <Text size={"sm"} className="text-wrap text-center">Use Iconify</Text>
                                     <Switch checked={item.iconType} onChange={(e) => setCards([...cards].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === iidx ? { ...y, iconType: e.currentTarget.checked } : y) } : x))} />
                                 </div>
-                                <TextInput label={`Card ${iidx + 1} ${item.iconType ? "Icon" : "Text"}`} value={item.iconTitle} onChange={(e) => setCards([...cards].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === iidx ? { ...y, title: e.currentTarget.value } : y) } : x))} className="w-[10svw]" />
+                                <TextInput label={`Card ${iidx + 1} ${item.iconType ? "Icon" : "Text"}`} value={item.iconTitle} onChange={(e) => setCards([...cards].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === iidx ? { ...y, iconTitle: e.currentTarget.value } : y) } : x))} className="w-[10svw]" />
                                 <TextInput label={`Card ${iidx + 1} Link`} value={item.link} onChange={(e) => setCards([...cards].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === iidx ? { ...y, link: e.currentTarget.value } : y) } : x))} className="w-[10svw]" />
                             </div>
                         })}
@@ -312,7 +346,7 @@ export default function Options() {
                 app: app,
                 text: text,
                 icon: icon,
-                bgImg: { bgSize: bgImg.bgSize, bgCol: bgImg.bgCol, img: bgImg.imgIsUrl ? tmpBg : "" },
+                bgImg: { ...bgImg, img: !isDataURL(tmpBg) ? tmpBg : "" },
                 animation: animation,
                 borderRadius: borderRadius
             },
@@ -324,12 +358,11 @@ export default function Options() {
             }
         }
         const res = await usrConfigStore.setValue(packagedConfig).catch((err) => err);
-        if(!bgImg.imgIsUrl){
+        if (isDataURL(tmpBg)) {
             await saveUserImageToLocalStorage(tmpBg);
         }
         if (typeof res === "undefined") {
             console.log("User saved changes");
-            setTmpBg("");
             setDialogOpened(true);
             setTimeout(() => setDialogOpened(false), 3000);
         } else {
@@ -397,6 +430,31 @@ export default function Options() {
         setBgImg({ ...bgImg, img: typeof tmp === "string" ? tmp : URL.createObjectURL(tmp) });
     }
 
+    const handleColsUp = () => {
+        if(cols === 2){
+            setCols(4);
+        }else{
+            setCols(prev => (prev + 1) === 5 ? 4 : prev + 1);
+        }
+    }
+
+    const handleColsDown = () => {
+        if(cols === 4){
+            setCols(2);
+        }else{
+            setCols(prev => (prev - 1) === 0 ? 1 : prev - 1);
+        }
+    }
+
+    const ColsButGp = () =>{
+        return (
+            <div className="flex flex-col w-full gap-0">
+                <ActionIcon size="xs" className="w-full border-r-0 border-b-0 rounded-tl-none rounded-bl-none rounded-br-none" variant="default" onClick={handleColsUp}><Icon icon={"mdi-light:chevron-up"} className={cols === 4 ? "text-gray-500" : ""} /></ActionIcon>
+                <ActionIcon size="xs" className="w-full border-r-0 border-t-0 rounded-tl-none rounded-tr-none rounded-bl-none" variant="default" onClick={handleColsDown}><Icon icon={"mdi-light:chevron-down"} className={cols === 1 ? "text-gray-500" : ""} /></ActionIcon>
+            </div>
+        );
+    }
+
     return (
         <form className="flex flex-col p-2">
             <Tabs defaultValue="layout">
@@ -407,7 +465,7 @@ export default function Options() {
                 </Tabs.List>
                 <Tabs.Panel value="layout">
                     <div className="text-sm flex flex-wrap gap-5 mt-1">
-                        <NumberInput label="Columns" value={cols} onChange={setCols} min={2} max={4} step={2} className="w-[5svw]" />
+                        <NumberInput label="Columns" value={cols} onChange={setCols} min={1} max={4} step={2} hideControls rightSection={<ColsButGp />} clampBehavior="strict" className="w-[5svw]" />
                         <NumberInput label="Rows" value={rows} onChange={setRows} min={1} max={3} step={1} className="w-[5svw]" />
                         <div>
                             <Text fw={500}>Gap</Text>
@@ -432,7 +490,17 @@ export default function Options() {
                     </div>
                     <Text fw={500}>Text Properties</Text>
                     <div className="border p-1 justify-center items-center mb-1">
-                        <TextInput label="Font Family" value={text.font} onChange={(e) => setText({ ...text, font: e.currentTarget.value })} className="w-[15svw]" placeholder="Default" />
+                        <div className="flex gap-5">
+                            <TextInput label="Font Family" value={text.font} onChange={(e) => setText({ ...text, font: e.currentTarget.value })} className="w-[15svw]" placeholder="Default" />
+                                <HoverCard className="flex items-center">
+                                    <HoverCard.Target>
+                                        <Checkbox label="Bold Text" checked={text.isBold} onChange={(e) => setText({ ...text, isBold: e.currentTarget.checked })} />
+                                    </HoverCard.Target>
+                                    <HoverCard.Dropdown>
+                                        Applies only to lists and cards
+                                    </HoverCard.Dropdown>
+                                </HoverCard>
+                        </div>
                         <div className="flex gap-5 mt-1">
                             <TextInput label="Primary Size" value={text.size.primary} onChange={(e) => setText({ ...text, size: { ...text.size, primary: e.currentTarget.value } })} className="w-[8svw]" />
                             <TextInput label="Secondary Size" value={text.size.secondary} onChange={(e) => setText({ ...text, size: { ...text.size, secondary: e.currentTarget.value } })} className="w-[8svw]" />
@@ -452,7 +520,7 @@ export default function Options() {
                         <div className="flex items-center gap-5">
                             <Image src={bgImg.img} className="w-[15vw] h-[10vh] object-cover" />
                             <div className="flex flex-col items-center gap-1">
-                                <Text>Input Url</Text>
+                                <Text>Use Url</Text>
                                 <Switch checked={bgImg.imgIsUrl} onChange={(e) => {setBgImg({...bgImg, imgIsUrl: e.currentTarget.checked})}} />
                             </div>
                             {
@@ -462,7 +530,7 @@ export default function Options() {
                                         <FileInput label="Background Image" value={typeof tmpBg === "string" ? null : tmpBg} onChange={(e) => { setTmpBg(e); setBgImgErr(false) }} error={bgImgErr} className="w-[15svw]" placeholder="Click here to choose" accept="image/png,image/jpeg" clearable leftSection={<ActionIcon className="mr-1" onClick={handleBgUp} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />
                                     </HoverCard.Target>
                                     <HoverCard.Dropdown>
-                                        <Text c="red">Uploaded ackground Images will NOT be synced across devices!</Text>
+                                        <Text c="red">Uploaded background images will NOT be synced across devices!</Text>
                                         <Space />Max size: 10MB
                                         <Space />Supports: PNG, JPEG
                                     </HoverCard.Dropdown>
@@ -479,7 +547,7 @@ export default function Options() {
                                     </HoverCard.Target>
                                     <HoverCard.Dropdown>
                                         <Text c="cyan">Cover</Text>Scale the image until it fills the background, cropping if nessesary
-                                        <Space h="md"/><Text c="lime">Contain</Text>Scale the image until it fits the background, cropping if nessesary
+                                        <Space h="md"/><Text c="lime">Contain</Text>Scale the image until it fits the background, without cropping
                                         <Space h="md"/><Text c="orange">Auto</Text>Use the image's original size
                                     </HoverCard.Dropdown>
                                 </HoverCard>

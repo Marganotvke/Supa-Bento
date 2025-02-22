@@ -15,6 +15,7 @@ export const DefaultCONFIG = {
         app: "#201e21",
         text: {
             font: '',
+            isBold: false,
             size: {
                 primary: "11vh",
                 secondary: "4vh",
@@ -24,7 +25,7 @@ export const DefaultCONFIG = {
             color: {
                 fg: "#d8dee9",
                 sfg: "#2c292e" // secondary/hover
-            }
+            },
         },
         icon: {
             size: "3vh",

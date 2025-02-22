@@ -1,9 +1,9 @@
 import Clock from "./clock";
-import Cells from "./cellGen";
 import Cardbox from "./cards";
 import ListBox from "./lists";
 import Memo from "./memo";
-import DateComponent from "./date";
+import Dates from "./date";
+import Empty from "./empty";
 
 export default function ComponentGenerator({config}){
     const components = config.layout.items;
@@ -25,6 +25,8 @@ export default function ComponentGenerator({config}){
                     switch (comp) {
                         case "clock":
                             return <Clock key={i} config={config} isHidden={isHidden}/>
+                        case "clock2":
+                            return <Clock key={i} config={config} isHidden={isHidden} span/>
                         case "cardbox":
                             return <Cardbox key={i} idx={cardCounts++} config={config} isHidden={isHidden}/>
                         case "listbox":
@@ -32,9 +34,11 @@ export default function ComponentGenerator({config}){
                         case "memo":
                             return <Memo key={i} idx={memoCounts++} config={config} isHidden={isHidden}/>
                         case "date":
-                            return <DateComponent key={i} config={config} isHidden={isHidden}/>
-                        default:
-                            return <Cells key={i} idx={i} isHidden={isHidden}/>
+                            return <Dates key={i} config={config} isHidden={isHidden}/>
+                        case "date2":
+                            return <Dates key={i} config={config} isHidden={isHidden} span/>
+                            default:
+                            return <Empty key={i} isHidden={isHidden} />
                     }
         })}
     </>

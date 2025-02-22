@@ -2,7 +2,7 @@
   "name": "supa-bento",
   "description": "Supa Bento is a new tab replacement.",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1a",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -21,7 +21,6 @@
     "@mantine/dates": "^7.16.2",
     "@mantine/hooks": "^7.16.2",
     "autoprefixer": "^10.4.20",
-    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^7.1.0",
     "postcss": "^8.5.1",
