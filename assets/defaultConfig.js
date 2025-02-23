@@ -8,9 +8,11 @@ export const DefaultCONFIG = {
             "cardbox",
             "date",
             "listbox",
-        ]
+        ],
+        skipIdx: [],
     },
     theme: {
+        bg: "#19171a", // applies before bgImg load if applicable
         accent: "#57a0d9", // hover
         app: "#201e21",
         text: {

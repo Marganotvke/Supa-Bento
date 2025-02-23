@@ -41,16 +41,16 @@ export default function Options() {
     const [submitFailContent, setSubmitFailContent] = useState("");
     const [bgImgErr, setBgImgErr] = useState(false);
 
-    const [forceEmpty, setForceEmpty] = useState(new Set());
-
     //see default config
     //layout
     const [cols, setCols] = useState(2);
     const [rows, setRows] = useState(2);
     const [gap, setGap] = useState(1);
-    const [items, setItems] = useState(["clock", "cardbox", "memo", "listbox"]);
+    const [skipIdx, setSkipIdx] = useState(new Set([]));
+    const [items, setItems] = useState(["clock", "cardbox", "date", "listbox"]);
 
     //theme
+    const [bg, setBg] = useState("#19171a");
     const [accent, setAccent] = useState("#57a0d9");
     const [app, setApp] = useState("#201e21");
     const [text, setText] = useState({
@@ -125,7 +125,8 @@ export default function Options() {
             setRows(fetchedConfig.layout?.rows || DefaultCONFIG.layout.rows);
             setGap(fetchedConfig.layout?.gap || DefaultCONFIG.layout.gap);
             setItems(fetchedConfig.layout?.items || DefaultCONFIG.layout.items);
-
+            setSkipIdx(fetchedConfig.layout ? new Set([...fetchedConfig.layout.skipIdx]) : new Set([...DefaultCONFIG.layout.skipIdx]));
+            
             setAccent(fetchedConfig.theme?.accent || DefaultCONFIG.theme.accent);
             setApp(fetchedConfig.theme?.app || DefaultCONFIG.theme.app);
             setText(fetchedConfig.theme?.text || DefaultCONFIG.theme.text);
@@ -167,9 +168,9 @@ export default function Options() {
         setItems([...items].map((x, i) => i === idx ? e.target.value : x));
         const secondIndex = getSecondIndex(idx);
         if(e.target.value === "clock2" || e.target.value === "date2") {
-            setForceEmpty(prev => new Set(prev).add(secondIndex)); 
+            setSkipIdx(prev => new Set(prev).add(secondIndex)); 
         } else {
-            setForceEmpty(prev => {
+            setSkipIdx(prev => {
                 const newSet = new Set(prev);
                 newSet.delete(secondIndex);
                 return newSet;
@@ -178,7 +179,7 @@ export default function Options() {
     };
 
     const ItemList = ({ idx, item }) => (
-        <select value={forceEmpty.has(idx) ? "empty" : item} key={idx} style={{ "--hCalc": `${(80 / rows)}%`, "--wCalc": `${(80 / cols)}%`, "--gapCalc": `${gap / 6}vw` }} disabled={forceEmpty.has(idx)} className={`${idx >= rows * cols ? "hidden" : null} h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-slate-700 rounded-md text-center`} onChange={(e) => handleItemListChange(e, idx)}>
+        <select value={skipIdx.has(idx) ? "empty" : item} key={idx} style={{ "--hCalc": `${(80 / rows)}%`, "--wCalc": `${(80 / cols)}%`, "--gapCalc": `${gap / 6}vw` }} disabled={skipIdx.has(idx)} className={`${idx >= rows * cols ? "hidden" : null} h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-slate-700 rounded-md text-center`} onChange={(e) => handleItemListChange(e, idx)}>
             <option value="clock">Clock</option>
             {
             idx < (rows * cols - rows) ?
@@ -339,9 +340,11 @@ export default function Options() {
                 cols: cols,
                 rows: rows,
                 gap: gap,
-                items: items
+                items: [...items.map((x,idx) => skipIdx.has(idx) ? "empty" : x)],
+                skipIdx: [...skipIdx]
             },
             theme: {
+                bg: bg,
                 accent: accent,
                 app: app,
                 text: text,
@@ -446,7 +449,7 @@ export default function Options() {
         }
     }
 
-    const ColsButGp = () =>{
+    const CusColsCtrl = () =>{
         return (
             <div className="flex flex-col w-full gap-0">
                 <ActionIcon size="xs" className="w-full border-r-0 border-b-0 rounded-tl-none rounded-bl-none rounded-br-none" variant="default" onClick={handleColsUp}><Icon icon={"mdi-light:chevron-up"} className={cols === 4 ? "text-gray-500" : ""} /></ActionIcon>
@@ -465,7 +468,7 @@ export default function Options() {
                 </Tabs.List>
                 <Tabs.Panel value="layout">
                     <div className="text-sm flex flex-wrap gap-5 mt-1">
-                        <NumberInput label="Columns" value={cols} onChange={setCols} min={1} max={4} step={2} hideControls rightSection={<ColsButGp />} clampBehavior="strict" className="w-[5svw]" />
+                        <NumberInput label="Columns" value={cols} onChange={setCols} min={1} max={4} step={2} hideControls rightSection={<CusColsCtrl />} clampBehavior="strict" className="w-[5svw]" />
                         <NumberInput label="Rows" value={rows} onChange={setRows} min={1} max={3} step={1} className="w-[5svw]" />
                         <div>
                             <Text fw={500}>Gap</Text>
@@ -487,19 +490,31 @@ export default function Options() {
                     <div className="flex gap-5 mt-1">
                         <ColorInput label="Accent Color" description="Used when hovering" value={accent} onChange={setAccent} className="w-[15svw]" />
                         <ColorInput label="App Color" description="Used for apps' background" value={app} onChange={setApp} className="w-[15svw]" />
+                        <HoverCard>
+                            <HoverCard.Target>
+                                <ColorInput label="Background Color" description="Applies before image" value={bg} onChange={setBg} className="w-[15svw]" />
+                            </HoverCard.Target>
+                            <HoverCard.Dropdown>
+                                <Text>
+                                    When page is loading (especially on first load and online images),
+                                    <br />this color will be shown as the background color.
+                                    <br />Also used when the background image is transparent.
+                                </Text>
+                            </HoverCard.Dropdown>
+                        </HoverCard>
                     </div>
                     <Text fw={500}>Text Properties</Text>
                     <div className="border p-1 justify-center items-center mb-1">
                         <div className="flex gap-5">
                             <TextInput label="Font Family" value={text.font} onChange={(e) => setText({ ...text, font: e.currentTarget.value })} className="w-[15svw]" placeholder="Default" />
-                                <HoverCard className="flex items-center">
-                                    <HoverCard.Target>
-                                        <Checkbox label="Bold Text" checked={text.isBold} onChange={(e) => setText({ ...text, isBold: e.currentTarget.checked })} />
-                                    </HoverCard.Target>
-                                    <HoverCard.Dropdown>
-                                        Applies only to lists and cards
-                                    </HoverCard.Dropdown>
-                                </HoverCard>
+                            <HoverCard className="flex items-center">
+                                <HoverCard.Target>
+                                    <Checkbox label="Bold Text" checked={text.isBold} onChange={(e) => setText({ ...text, isBold: e.currentTarget.checked })} />
+                                </HoverCard.Target>
+                                <HoverCard.Dropdown>
+                                    Applies only to lists and cards
+                                </HoverCard.Dropdown>
+                            </HoverCard>
                         </div>
                         <div className="flex gap-5 mt-1">
                             <TextInput label="Primary Size" value={text.size.primary} onChange={(e) => setText({ ...text, size: { ...text.size, primary: e.currentTarget.value } })} className="w-[8svw]" />
@@ -514,7 +529,7 @@ export default function Options() {
                     </div>
                     <TextInput label="Icon Size" value={icon.size} onChange={(e) => setIcon({ size: e.currentTarget.value })} className="w-[7svw]" />
                     <div className="flex gap-1 mt-1">
-                        <Text fw={500}>Background</Text><Text className="italic">(Gradient color applies before background image)</Text>
+                        <Text fw={500}>Background</Text><Text className="italic">(Gradient color applies in front of background image)</Text>
                     </div>
                     <div className="flex flex-col border p-1 gap-1 mb-1">
                         <div className="flex items-center gap-5">
@@ -684,7 +699,6 @@ export default function Options() {
             </Tabs>
             <Divider my="md" />
             <Modal keepMounted={false} opened={modalOpened} onClose={() => setModalOpened(false)} title="Reset Configuration" >
-                <Divider my="md" />
                 <Text className="mb-3" c="red">Are you sure you want to reset all settings? This will reset everything!</Text>
                 <Group justify="space-between" >
                     <Button variant="filled" color="red" onClick={handleReset}>Yes</Button>

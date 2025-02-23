@@ -1,5 +1,4 @@
 import { Icon } from "@iconify/react";
-import { storage } from "wxt/storage";
 
 function _inlineListElements(idx, item, theme, anim){
     const inlineIcon = item.iconType ? <Icon icon={item.icon} inline={true}/> : item.icon;
@@ -16,7 +15,7 @@ function _listItem(idx, itemList, config, anim){
     const theme = config.theme;
     const listIconTitle = itemList.iconType ? <Icon icon={itemList.iconTitle} /> : itemList.iconTitle;
 
-    return <div key={idx} className={`flex flex-col drop-shadow-lg hover:-translate-y-1 `} style={{borderRadius: theme.borderRadius, backgroundColor: theme.app, ...anim}}>
+    return <div key={idx} className={`flex flex-col drop-shadow-lg hover:-translate-y-1`} style={{borderRadius: theme.borderRadius, backgroundColor: theme.app, ...anim}}>
         <h1 style={{fontSize: theme.icon.size, color: theme.text.color.fg}}
             className="flex flex-1 text-center items-center justify-center p-2 h-[15%]">
             {listIconTitle}

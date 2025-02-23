@@ -25,7 +25,7 @@ import { storage } from "wxt/storage";
 
     ReactDOM.createRoot(document.getElementById('root')).render(
         <React.StrictMode>
-            <div className={`h-full w-full`} style={bg}>
+            <div className={`h-full w-full bg-[--themeBg]`} style={{ "--themeBg": theme.bg, ...bg }}>
                 <LayoutGenerator config={config}/>
             </div>
         </React.StrictMode>,
