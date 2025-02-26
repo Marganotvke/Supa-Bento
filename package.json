@@ -15,7 +15,7 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
-    "@iconify/react": "^5.2.0",
+    "@iconify-icon/react": "^2.3.0",
     "@mantine/carousel": "^7.16.2",
     "@mantine/core": "^7.16.2",
     "@mantine/dates": "^7.16.2",

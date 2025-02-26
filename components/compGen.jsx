@@ -4,6 +4,7 @@ import ListBox from "./lists";
 import Memo from "./memo";
 import Dates from "./date";
 import Empty from "./empty";
+import Weather from "./weather";
 
 export default function ComponentGenerator({config}){
     const components = config.layout.items;
@@ -37,7 +38,9 @@ export default function ComponentGenerator({config}){
                             return <Dates key={i} config={config} isHidden={isHidden}/>
                         case "date2":
                             return <Dates key={i} config={config} isHidden={isHidden} span/>
-                            default:
+                        case "weather":
+                            return <Weather key={i} config={config} isHidden={isHidden}/>
+                        default:
                             return <Empty key={i} isHidden={isHidden} />
                     }
         })}

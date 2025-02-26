@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react";
+import { Icon } from "@iconify-icon/react";
 
 function _inlineListElements(idx, item, theme, anim){
     const inlineIcon = item.iconType ? <Icon icon={item.icon} inline={true}/> : item.icon;

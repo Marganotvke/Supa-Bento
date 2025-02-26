@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react";
+import { Icon } from "@iconify-icon/react";
 
 function _cards(idx, card, config){
     const theme = config.theme;

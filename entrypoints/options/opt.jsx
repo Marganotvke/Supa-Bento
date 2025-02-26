@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { DefaultCONFIG } from '../../assets/defaultConfig';
 import { storage } from "wxt/storage";
-import { ActionIcon, Accordion, Anchor, AngleSlider, Button, Checkbox, Collapse, ColorInput, Dialog, Divider, FileInput, Group, HoverCard, Image, Modal, NumberInput, Select, SegmentedControl, Slider, Switch, Tabs, Text, TextInput, Space, UnstyledButton, CloseButton, Stack } from "@mantine/core";
-import { Icon } from '@iconify/react';
+import { ActionIcon, Accordion, Anchor, AngleSlider, Button, Checkbox, Collapse, ColorInput, Dialog, Divider, FileInput, Group, HoverCard, Image, Modal, MultiSelect, NumberInput, Select, SegmentedControl, Slider, Switch, Tabs, Text, TextInput, Space } from "@mantine/core";
+import { Icon } from '@iconify-icon/react';
 
 function _arrLenCh(arr, len) {
     //helper function to change array length
@@ -107,6 +107,19 @@ export default function Options() {
     })
     const [lists, setLists] = useState([]);
     const [cards, setCards] = useState([]);
+const [weather, setWeather] = useState({
+        provider: "o", // o for open meteo, p for pirate weather
+        lat: 52,
+        lon: 0,
+        apiKey: "", //pirate weather
+        showIcon: true, //weather icon
+        f: false, //fahrenheit
+        interval: 30, //minutes
+        items: [ //feelsLike, alert, weather, max 2 line
+        "feelsLike",
+        "alert",
+    ],
+    });
 
     const usrConfigStore = storage.defineItem("sync:usrConfig", {
         fallback: DefaultCONFIG,
@@ -125,8 +138,8 @@ export default function Options() {
             setRows(fetchedConfig.layout?.rows || DefaultCONFIG.layout.rows);
             setGap(fetchedConfig.layout?.gap || DefaultCONFIG.layout.gap);
             setItems(fetchedConfig.layout?.items || DefaultCONFIG.layout.items);
-            setSkipIdx(fetchedConfig.layout ? new Set([...fetchedConfig.layout.skipIdx]) : new Set([...DefaultCONFIG.layout.skipIdx]));
-            
+            setSkipIdx(new Set(fetchedConfig.layout?.skipIdx || DefaultCONFIG.layout.skipIdx));
+
             setAccent(fetchedConfig.theme?.accent || DefaultCONFIG.theme.accent);
             setApp(fetchedConfig.theme?.app || DefaultCONFIG.theme.app);
             setText(fetchedConfig.theme?.text || DefaultCONFIG.theme.text);
@@ -193,6 +206,7 @@ export default function Options() {
             <option value="memo">Quick Memo</option>
             <option value="listbox">Lists</option>
             <option value="date">Date</option>
+            <option value="weather">Weather</option>
             <option value="empty">Empty</option>
         </select>
     );
@@ -357,7 +371,8 @@ export default function Options() {
                 clock: clock,
                 date: date,
                 lists: lists,
-                cards: cards
+                cards: cards,
+                weather: weather
             }
         }
         const res = await usrConfigStore.setValue(packagedConfig).catch((err) => err);
@@ -507,14 +522,14 @@ export default function Options() {
                     <div className="border p-1 justify-center items-center mb-1">
                         <div className="flex gap-5">
                             <TextInput label="Font Family" value={text.font} onChange={(e) => setText({ ...text, font: e.currentTarget.value })} className="w-[15svw]" placeholder="Default" />
-                            <HoverCard className="flex items-center">
-                                <HoverCard.Target>
-                                    <Checkbox label="Bold Text" checked={text.isBold} onChange={(e) => setText({ ...text, isBold: e.currentTarget.checked })} />
-                                </HoverCard.Target>
-                                <HoverCard.Dropdown>
-                                    Applies only to lists and cards
-                                </HoverCard.Dropdown>
-                            </HoverCard>
+                                <HoverCard className="flex items-center">
+                                    <HoverCard.Target>
+                                        <Checkbox label="Bold Text" checked={text.isBold} onChange={(e) => setText({ ...text, isBold: e.currentTarget.checked })} />
+                                    </HoverCard.Target>
+                                    <HoverCard.Dropdown>
+                                        Applies only to lists and cards
+                                    </HoverCard.Dropdown>
+                                </HoverCard>
                         </div>
                         <div className="flex gap-5 mt-1">
                             <TextInput label="Primary Size" value={text.size.primary} onChange={(e) => setText({ ...text, size: { ...text.size, primary: e.currentTarget.value } })} className="w-[8svw]" />
@@ -529,7 +544,7 @@ export default function Options() {
                     </div>
                     <TextInput label="Icon Size" value={icon.size} onChange={(e) => setIcon({ size: e.currentTarget.value })} className="w-[7svw]" />
                     <div className="flex gap-1 mt-1">
-                        <Text fw={500}>Background</Text><Text className="italic">(Gradient color applies in front of background image)</Text>
+                        <Text fw={500}>Background</Text><Text className="italic">(Gradient color applies before background image)</Text>
                     </div>
                     <div className="flex flex-col border p-1 gap-1 mb-1">
                         <div className="flex items-center gap-5">
@@ -694,11 +709,46 @@ export default function Options() {
                                 </Tabs>
                             </Accordion.Panel>
                         </Accordion.Item>
+                        <Accordion.Item value="weather" key="weather">
+                            <Accordion.Control icon={<Icon icon="bi:cloud-sun" />}>
+                                <Text size="xl">Weather</Text>
+                            </Accordion.Control>
+                            <Accordion.Panel>
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex gap-2">
+                                        <NumberInput label="Latitude" rightSection={<></>} value={weather.lat} onChange={(e) => setWeather({ ...weather, lat: e })} className="w-[15svw]" />
+                                        <NumberInput label="Longitude" rightSection={<></>} value={weather.lon} onChange={(e) => setWeather({ ...weather, lon: e })} className="w-[15svw]" />
+                                    </div>
+                                    <HoverCard>
+                                        <HoverCard.Target>
+                                            <TextInput label="Api Key" withAsterisk={weather.provider==="p"} required={weather.provider==="p"} value={weather.apiKey} onChange={(e) => setWeather({ ...weather, apiKey: e.currentTarget.value })} className="w-[15svw]" />
+                                        </HoverCard.Target>
+                                        <HoverCard.Dropdown>
+                                            <Text>Only applicable for Pirate Weather. Apply at <Anchor href="https://pirateweather.net/en/latest/">Pirate Weather Api</Anchor></Text>
+                                        </HoverCard.Dropdown>
+                                    </HoverCard>
+                                    <div className="flex gap-2">
+                                        <SegmentedControl value={weather.provider} data={[{value: "o", label: "Open-Meteo"}, {value: "p", label: "Pirate Weather"}]} onChange={(val, _) => setWeather({ ...weather, provider: val })} />
+                                        <SegmentedControl className="w-[7vw]" value={weather.f ? "F" : "C"} data={[{ value: "C", label: "°C" }, { value: "F", label: "°F" }]} onChange={(val, _) => setWeather({ ...weather, f: val === "F" })} />
+                                    </div>
+                                    <div className="flex gap-2 items-center">
+                                        <NumberInput value={weather.interval} label="Update Interval (min)" onChange={(val) => setWeather({ ...weather, interval: val })} min={15} max={120} step={15} className="w-[15svw]" />
+                                        <Checkbox label="Use Weather Icon" checked={weather.showIcon} onChange={(e) => setWeather({ ...weather, showIcon: e.currentTarget.checked })} />
+                                    </div>
+                                    <MultiSelect label="Weather notices" value={weather.items} onChange={(val) =>{ setWeather({ ...weather, items: val }) ; console.log(val)}} data={[
+                                        { value: "feelsLike", label: "Apparent Temperature (Feels Like)"},
+                                        { value: "weather", label: "Weather Condition"},
+                                        { value: "alert", label: "Weather Alert"},
+                                    ]} maxValues={2} placeholder="Up to 2 items" clearable className="w-[25svw]" />
+                                </div>
+                            </Accordion.Panel>
+                        </Accordion.Item>                        
                     </Accordion>
                 </Tabs.Panel>
             </Tabs>
             <Divider my="md" />
             <Modal keepMounted={false} opened={modalOpened} onClose={() => setModalOpened(false)} title="Reset Configuration" >
+                <Divider my="md" />
                 <Text className="mb-3" c="red">Are you sure you want to reset all settings? This will reset everything!</Text>
                 <Group justify="space-between" >
                     <Button variant="filled" color="red" onClick={handleReset}>Yes</Button>

@@ -183,6 +183,20 @@ export const DefaultCONFIG = {
                 ]
             },
         ],
+
+        weather: {
+            provider: "o", // o for open meteo, p for pirate weather
+            lat: 51.47699329881767,
+            lon: -0.00004959142442448969,
+            apiKey: "", //pirate weather
+            showIcon: true, //weather icon
+            f: false, //fahrenheit
+            interval: 30, //minutes
+            items: [ //feelsLike, alert, weather, max 2
+                "feelsLike",
+                "alert",
+            ],
+        }
     
     },
     
