@@ -199,6 +199,4 @@ export const DefaultCONFIG = {
         }
     
     },
-    
-    default: true,
 };
