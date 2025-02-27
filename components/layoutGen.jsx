@@ -1,4 +1,3 @@
-import CellGen from './cellGen.jsx';
 import ComponentGenerator from './compGen.jsx';
 
 export default function LayoutGenerator({config}){
