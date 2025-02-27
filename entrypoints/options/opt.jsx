@@ -107,18 +107,18 @@ export default function Options() {
     })
     const [lists, setLists] = useState([]);
     const [cards, setCards] = useState([]);
-const [weather, setWeather] = useState({
-        provider: "o", // o for open meteo, p for pirate weather
-        lat: 52,
-        lon: 0,
-        apiKey: "", //pirate weather
-        showIcon: true, //weather icon
-        f: false, //fahrenheit
-        interval: 30, //minutes
-        items: [ //feelsLike, alert, weather, max 2 line
-        "feelsLike",
-        "alert",
-    ],
+    const [weather, setWeather] = useState({
+            provider: "o", // o for open meteo, p for pirate weather
+            lat: 52,
+            lon: 0,
+            apiKey: "", //pirate weather
+            showIcon: true, //weather icon
+            f: false, //fahrenheit
+            interval: 30, //minutes
+            items: [ //feelsLike, alert, weather, max 2 line
+            "feelsLike",
+            "alert",
+        ],
     });
 
     const usrConfigStore = storage.defineItem("sync:usrConfig", {
@@ -207,7 +207,7 @@ const [weather, setWeather] = useState({
             <option value="listbox">Lists</option>
             <option value="date">Date</option>
             <option value="weather">Weather</option>
-            <option value="empty">Empty</option>
+            <option hidden value="empty">Empty</option>
         </select>
     );
     
@@ -716,19 +716,29 @@ const [weather, setWeather] = useState({
                             <Accordion.Panel>
                                 <div className="flex flex-col gap-2">
                                     <div className="flex gap-2">
-                                        <NumberInput label="Latitude" rightSection={<></>} value={weather.lat} onChange={(e) => setWeather({ ...weather, lat: e })} className="w-[15svw]" />
-                                        <NumberInput label="Longitude" rightSection={<></>} value={weather.lon} onChange={(e) => setWeather({ ...weather, lon: e })} className="w-[15svw]" />
+                                        <NumberInput label="Latitude" rightSection={<></>} value={weather.lat} onChange={(e) => setWeather({ ...weather, lat: e })} min={-90} max={90} className="w-[15svw]" />
+                                        <NumberInput label="Longitude" rightSection={<></>} value={weather.lon} onChange={(e) => setWeather({ ...weather, lon: e })} min={-180} max={180} className="w-[15svw]" />
                                     </div>
-                                    <HoverCard>
-                                        <HoverCard.Target>
-                                            <TextInput label="Api Key" withAsterisk={weather.provider==="p"} required={weather.provider==="p"} value={weather.apiKey} onChange={(e) => setWeather({ ...weather, apiKey: e.currentTarget.value })} className="w-[15svw]" />
-                                        </HoverCard.Target>
-                                        <HoverCard.Dropdown>
-                                            <Text>Only applicable for Pirate Weather. Apply at <Anchor href="https://pirateweather.net/en/latest/">Pirate Weather Api</Anchor></Text>
-                                        </HoverCard.Dropdown>
-                                    </HoverCard>
+                                    <Collapse in={weather.provider === "p"}>
+                                        <HoverCard>
+                                            <HoverCard.Target>
+                                                <TextInput label="Api Key" withAsterisk={weather.provider==="p"} value={weather.apiKey} onChange={(e) => setWeather({ ...weather, apiKey: e.currentTarget.value })} className="w-[20svw]" />
+                                            </HoverCard.Target>
+                                            <HoverCard.Dropdown>
+                                                <Text>Only applicable when using Pirate Weather. Apply at <Anchor href="https://pirateweather.net/en/latest/">Pirate Weather Api</Anchor></Text>
+                                            </HoverCard.Dropdown>
+                                        </HoverCard>
+                                    </Collapse>
                                     <div className="flex gap-2">
-                                        <SegmentedControl value={weather.provider} data={[{value: "o", label: "Open-Meteo"}, {value: "p", label: "Pirate Weather"}]} onChange={(val, _) => setWeather({ ...weather, provider: val })} />
+                                        <HoverCard>
+                                            <HoverCard.Target>
+                                                <SegmentedControl value={weather.provider} data={[{value: "o", label: "Open-Meteo"}, {value: "p", label: "Pirate Weather"}]} onChange={(val, _) => setWeather({ ...weather, provider: val })} />
+                                            </HoverCard.Target>
+                                            <HoverCard.Dropdown>
+                                                <Text><Anchor href="https://open-meteo.com/" c="cyan">Open-Meteo</Anchor></Text>Free, max 10000 requests/day
+                                                <Space h="md"/><Text><Anchor href="https://pirateweather.net/en/latest/" c="lime">Pirate Weather</Anchor></Text>Free with alerts available (needs Api key), max 10000 requests/month (~13 requests/hour)
+                                            </HoverCard.Dropdown>
+                                        </HoverCard>
                                         <SegmentedControl className="w-[7vw]" value={weather.f ? "F" : "C"} data={[{ value: "C", label: "°C" }, { value: "F", label: "°F" }]} onChange={(val, _) => setWeather({ ...weather, f: val === "F" })} />
                                     </div>
                                     <div className="flex gap-2 items-center">

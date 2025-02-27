@@ -2,7 +2,7 @@
   "name": "supa-bento",
   "description": "Supa Bento is a new tab replacement.",
   "private": true,
-  "version": "0.1a",
+  "version": "0.1",
   "type": "module",
   "scripts": {
     "dev": "wxt",
