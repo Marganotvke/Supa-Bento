@@ -4,6 +4,6 @@ import Popup from './pop.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-    <Popup />
+        <Popup />
     </React.StrictMode>,
 );
