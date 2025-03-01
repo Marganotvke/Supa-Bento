@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { DefaultCONFIG } from '../../assets/defaultConfig';
 import { storage } from "wxt/storage";
-import { ActionIcon, Accordion, Anchor, AngleSlider, Button, Checkbox, Collapse, ColorInput, Dialog, Divider, FileInput, Group, HoverCard, Image, Modal, MultiSelect, NumberInput, Select, SegmentedControl, Slider, Switch, Tabs, Text, TextInput, Space, TypographyStylesProvider, Code } from "@mantine/core";
+import { ActionIcon, Accordion, Anchor, AngleSlider, Button, Checkbox, Collapse, ColorInput, Dialog, Divider, FileInput, Group, HoverCard, Image, Modal, MultiSelect, NumberInput, Select, SegmentedControl, Slider, Switch, Tabs, Text, TextInput, Space } from "@mantine/core";
 import { Icon } from '@iconify-icon/react';
 
 function _arrLenCh(arr, len) {
@@ -478,7 +478,7 @@ export default function Options() {
             <Tabs defaultValue="layout">
                 <Tabs.List>
                     <Tabs.Tab value="layout" leftSection={<Icon icon={"ph:layout"} />}>Layout</Tabs.Tab>
-                    <Tabs.Tab value="theme" leftSection={<Icon icon={"ph:paint-Spaceush-household"} />}>Theme</Tabs.Tab>
+                    <Tabs.Tab value="theme" leftSection={<Icon icon={"ph:paint-brush-broad"} />}>Theme</Tabs.Tab>
                     <Tabs.Tab value="apps" leftSection={<Icon icon={"ph:app-window"} />}>Apps</Tabs.Tab>
                     <Tabs.Tab value="about" ml="auto" leftSection={<Icon icon={"ix:about"} />}>About</Tabs.Tab>
                 </Tabs.List>
@@ -758,9 +758,9 @@ export default function Options() {
                 </Tabs.Panel>
 
                 <Tabs.Panel value="about">
-                    <Text>Version: </Text>
-                    <Text>Author: </Text>
-                    <Anchor href="https://github.com/google/material-design-icons/blob/master/LICENSE">Github Page</Anchor>
+                    <Text>Version: {browser.runtime.getManifest().version}</Text>
+                    <Text>Author: Margano <Anchor variant="text" c="white" href="https://github.com/Marganotvke"><Icon icon="mdi:github" /></Anchor></Text>
+                    <Anchor href="https://github.com/google/material-design-icons/blob/master/LICENSE">Project's Github Repository</Anchor>
                 </Tabs.Panel>
             </Tabs>
             <Divider my="md" />

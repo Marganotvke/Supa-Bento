@@ -1,8 +1,12 @@
-WXT,React, Mantine, Iconify, Fluent Icons, TDesign Icons, Framework 7 Icons, Fontisto Icons, Bootstrap Icons, Meteocons
+All licenses used by various libraries/frameworks are listed below. Unless otherwise specified, in accordance to respective licenses, copyright belongs to their respective holders.
+
+=============================
+
+WXT,React, Mantine, Iconify, Fluent Icons, TDesign Icons, Framework 7 Icons, Fontisto Icons, Bootstrap Icons, Meteocons, Siemens Industrial Experience Icons
 
 MIT License
 
-Copyright (c) 2021 Vitaly Rtishchev
+Copyright (c)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -214,7 +218,7 @@ Material Icons, Carbon Icons, Unicons
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright [yyyy] [name of copyright owner]
+   Copyright (c)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
