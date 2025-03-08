@@ -2,14 +2,15 @@
 🍱 A minimalist, elegant newtab extension, with easily customizable widgets.
 
 # Contents
-[Features](#features)
-[Install](#install)
-[Build](#build)
-[Customization](#customization)
-    [Basic Customization](#basic-customization)
-    [Advanced Customization](#advanced-customization)
-[Technical Information](#technical-information)
-[Special Thanks](#special-thanks)
+- [Features](#features)
+  - [Screenshots](#screenshots) 
+- [Install](#install)
+- [Build](#build)
+- [Customization](#customization)
+    - [Basic Customization](#basic-customization)
+    - [Advanced Customization](#advanced-customization)
+- [Technical Information](#technical-information)
+- [Special Thanks](#special-thanks)
 
 # Features
 - Clean and minimalist
@@ -18,6 +19,15 @@
 - [Iconify](https://iconify.design/) support provides icon customizability
 - Automatically adapting to screen sizes
 - Easy to implement extensive customization such as custom widgets with modular javascript files
+
+## Screenshots
+<details>
+<summary>Click to see screenshots</summary>
+
+![SupaBento Screenshot A](readmeImgSrc/ssA.png)
+![SupaBento Screenshot B](readmeImgSrc/ssB.png)
+![SupaBento Screenshot C](readmeImgSrc/ssC.png)
+</details>
 
 # Install
 1. Visit the [releases](https://github.com/Marganotvke/Supa-Bento/releases) page
