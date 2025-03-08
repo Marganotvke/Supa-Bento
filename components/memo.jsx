@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import {storage} from "wxt/storage";
 
 export default function Memo({idx, config, isHidden}){
     const theme = config.theme;
@@ -6,38 +7,44 @@ export default function Memo({idx, config, isHidden}){
     const [memoTitle, setMemoTitle] = useState("");
     const [memoContent, setMemoContent] = useState("");
     const memoName = `memo_${idx}`;
-    var memo = {title: "", content: ""};
+
+    const usrMemo = storage.defineItem(`local:${memoName}`, {
+        fallback: {title: "", content: ""},
+    });
     
     useEffect(() => {
-        try {
-            const localMemo = JSON.parse(localStorage.getItem(memoName));
-            memo = localMemo ? localMemo : memo;
-
-        }catch(e){
-            console.log("Error parsing memo data: ", e);
+        const getMemoStorage = async () => {
+            try {
+                var localMemo;
+                localMemo = await usrMemo.getValue()
+                return localMemo ? localMemo : {title: "", content: ""};
+            }catch(e){
+                console.log("Error parsing memo data: ", e);
+            }
         }
-        setMemoTitle(memo.title);
-        setMemoContent(memo.content);
-        console.log(`${!memo.title && !memo.content ? `No memo found for memo ${idx}` : "Memo data loaded for memo " + idx}`);
+        getMemoStorage().then(memo => {
+            setMemoTitle(memo.title);
+            setMemoContent(memo.content);
+            console.log(`${!memo.title && !memo.content ? `No memo found for memo ${idx}` : "Memo data loaded for memo " + idx}`);
+        });
     },[]);
     
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if(!memo.title && !memo.content){
+        if(!memoTitle && !memoContent){
             console.log("No memo data to save for", memoName);
             return;
         }
         const localMemo = {title: memoTitle, content: memoContent};
-        localStorage.setItem(memoName, JSON.stringify(localMemo));
+        await usrMemo.setValue(localMemo);
         console.log("Memo data saved", localMemo);
     }
 
-    const handleReset = (e) => {
+    const handleReset = async (e) => {
         e.preventDefault();
-        localStorage.removeItem(memoName);
+        await usrMemo.removeValue();
         setMemoTitle("");
         setMemoContent("");
-        memo = {title: "", content: ""};
         console.log("Memo data cleared for", memoName);
     }
 

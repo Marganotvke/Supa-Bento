@@ -21,7 +21,7 @@ import { storage } from "wxt/storage";
     const theme = config.theme;
     const bgImg = !theme.bgImg.imgIsUrl || theme.bgImg.img === "" ? await usrBgImg.getValue() : theme.bgImg.img;
 
-    const bg = {"backgroundSize": theme.bgImg.bgSize, backgroundImage: [`linear-gradient(${theme.bgImg.bgCol.deg}deg, ${theme.bgImg.bgCol.start}, ${theme.bgImg.bgCol.end})`, `url(${bgImg})`]};
+    const bg = {"backgroundSize": theme.bgImg.bgSize, backgroundImage: [`linear-gradient(${theme.bgImg.bgCol.deg}deg, ${theme.bgImg.bgCol.start}, ${theme.bgImg.bgCol.end})`, `${theme.bgImg.useCol ? '' : `url(${bgImg})`}`]};
 
     ReactDOM.createRoot(document.getElementById('root')).render(
         <React.StrictMode>

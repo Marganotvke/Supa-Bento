@@ -9,7 +9,7 @@ function _cards(idx, card, config){
     return(
         <a href={card.link} key={idx} 
             style={{borderRadius: `${theme.borderRadius}px`, fontSize: theme.text.size.itemText, "--text": theme.text.color.fg, '--hover': theme.accent, "--hoverText": theme.text.color.sfg, "--cardBg": theme.app, ...animation}} 
-            className={`bg-[--cardBg] hover:bg-[--hover] text-[--text] hover:text-[#2c292e] flex flex-row p-2 items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-1 ${theme.text.isBold ? "font-semibold" : ""}`}> 
+            className={`bg-[--cardBg] hover:bg-[--hover] text-[--text] hover:text-[--hoverText] flex flex-row p-2 items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-1 ${theme.text.isBold ? "font-semibold" : ""}`}> 
                 {iconTitle}
         </a> 
     )

@@ -40,6 +40,7 @@ export default function Options() {
     const [submitDialogFailed, setSubmitDialogFailed] = useState(false);
     const [submitFailContent, setSubmitFailContent] = useState("");
     const [bgImgErr, setBgImgErr] = useState(false);
+    const [curOpt, setCurOpt] = useState("layout");
 
     //see default config
     //layout
@@ -76,7 +77,8 @@ export default function Options() {
             deg: 0
         },
         img: "https://picsum.photos/1920/1080",
-        imgIsUrl: true
+        imgIsUrl: true,
+        useCol: false
     });
     const [tmpBg, setTmpBg] = useState("");
     const [animation, setAnimation] = useState({
@@ -117,7 +119,6 @@ export default function Options() {
             interval: 30, //minutes
             items: [ //feelsLike, alert, weather, max 2 line
             "feelsLike",
-            "alert",
         ],
     });
 
@@ -194,6 +195,7 @@ export default function Options() {
     const ItemList = ({ idx, item }) => (
         <select value={skipIdx.has(idx) ? "empty" : item} key={idx} style={{ "--hCalc": `${(80 / rows)}%`, "--wCalc": `${(80 / cols)}%`, "--gapCalc": `${gap / 6}vw` }} disabled={skipIdx.has(idx)} className={`${idx >= rows * cols ? "hidden" : null} h-[--hCalc] w-[--wCalc] m-[--gapCalc] bg-slate-700 rounded-md text-center`} onChange={(e) => handleItemListChange(e, idx)}>
             <option value="clock">Clock</option>
+            <option value="date">Date</option>
             {
             idx < (rows * cols - rows) ?
                 <>
@@ -205,7 +207,6 @@ export default function Options() {
             <option value="cardbox">Cards</option>
             <option value="memo">Quick Memo</option>
             <option value="listbox">Lists</option>
-            <option value="date">Date</option>
             <option value="weather">Weather</option>
             <option hidden value="empty">Empty</option>
         </select>
@@ -475,11 +476,11 @@ export default function Options() {
 
     return (
         <form className="flex flex-col p-2">
-            <Tabs defaultValue="layout">
+            <Tabs defaultValue="layout" onChange={setCurOpt}>
                 <Tabs.List>
                     <Tabs.Tab value="layout" leftSection={<Icon icon={"ph:layout"} />}>Layout</Tabs.Tab>
                     <Tabs.Tab value="theme" leftSection={<Icon icon={"ph:paint-brush-broad"} />}>Theme</Tabs.Tab>
-                    <Tabs.Tab value="apps" leftSection={<Icon icon={"ph:app-window"} />}>Apps</Tabs.Tab>
+                    <Tabs.Tab value="apps" leftSection={<Icon icon={"ph:app-window"} />}>Widgets</Tabs.Tab>
                     <Tabs.Tab value="about" ml="auto" leftSection={<Icon icon={"ix:about"} />}>About</Tabs.Tab>
                 </Tabs.List>
                 <Tabs.Panel value="layout">
@@ -498,23 +499,23 @@ export default function Options() {
                         <div className="h-[35svw] aspect-video flex flex-col flex-wrap border justify-center items-center">
                             {items.map((item, idx) => _itemsLists(idx, item))}
                         </div>
-                        <Text size="sm">Make sure to add the corresponding configs within the Apps tab if you are adding more than one list/cards!</Text>
+                        <Text size="sm">Make sure to add the corresponding configs within the Widgets tab if you are adding more than one list/cards!</Text>
                     </div>
                 </Tabs.Panel>
 
                 <Tabs.Panel value="theme">
                     <div className="flex gap-5 mt-1">
                         <ColorInput label="Accent Color" description="Used when hovering" value={accent} onChange={setAccent} className="w-[15svw]" />
-                        <ColorInput label="App Color" description="Used for apps' background" value={app} onChange={setApp} className="w-[15svw]" />
+                        <ColorInput label="Widget Color" description="Used for widgets' background" value={app} onChange={setApp} className="w-[15svw]" />
                         <HoverCard>
                             <HoverCard.Target>
                                 <ColorInput label="Background Color" description="Applies before image" value={bg} onChange={setBg} className="w-[15svw]" />
                             </HoverCard.Target>
                             <HoverCard.Dropdown>
                                 <Text>
-                                    When page is loading (especially on first load and online images),
+                                    Used when the background image is transparent/disabled.
+                                    <br />Also when page is loading (especially on first load and online images),
                                     <br />this color will be shown as the background color.
-                                    <br />Also used when the background image is transparent.
                                 </Text>
                             </HoverCard.Dropdown>
                         </HoverCard>
@@ -540,7 +541,7 @@ export default function Options() {
                         </div>
                         <div className="flex gap-5 mt-1">
                             <ColorInput label="Text Color" value={text.color.fg} onChange={(e) => setText({ ...text, color: { ...text.color, fg: e } })} className="w-[15svw]" />
-                            <ColorInput label="Hover Color" value={text.color.sfg} onChange={(e) => setText({ ...text, color: { ...text.color, sfg: e } })} className="w-[15svw]" />
+                            <ColorInput label="Text Hover Color" value={text.color.sfg} onChange={(e) => setText({ ...text, color: { ...text.color, sfg: e } })} className="w-[15svw]" />
                         </div>
                     </div>
                     <TextInput label="Icon Size" value={icon.size} onChange={(e) => setIcon({ size: e.currentTarget.value })} className="w-[7svw]" />
@@ -548,17 +549,20 @@ export default function Options() {
                         <Text fw={500}>Background</Text><Text className="italic">(Gradient color applies before background image)</Text>
                     </div>
                     <div className="flex flex-col border p-1 gap-1 mb-1">
+                        <SegmentedControl value={bgImg.useCol ? "col" : "img"} onChange={(val) => setBgImg({...bgImg, useCol: val === "col"})} data={[{value: "img", label: "Use Image"}, {value: "col", label: "Use BG color"}]} className="w-[15vw]"/>
                         <div className="flex items-center gap-5">
+                            {bgImg.useCol ? null :
                             <Image src={bgImg.img} className="w-[15vw] h-[10vh] object-cover" />
+                        }
                             <div className="flex flex-col items-center gap-1">
                                 <Text>Use Url</Text>
-                                <Switch checked={bgImg.imgIsUrl} onChange={(e) => {setBgImg({...bgImg, imgIsUrl: e.currentTarget.checked})}} />
+                                <Switch disabled={bgImg.useCol} checked={bgImg.imgIsUrl} onChange={(e) => {setBgImg({...bgImg, imgIsUrl: e.currentTarget.checked})}} />
                             </div>
                             {
                                 !bgImg.imgIsUrl ? 
                                 (<HoverCard>
                                     <HoverCard.Target>
-                                        <FileInput label="Background Image" value={typeof tmpBg === "string" ? null : tmpBg} onChange={(e) => { setTmpBg(e); setBgImgErr(false) }} error={bgImgErr} className="w-[15svw]" placeholder="Click here to choose" accept="image/png,image/jpeg" clearable leftSection={<ActionIcon className="mr-1" onClick={handleBgUp} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />
+                                        <FileInput disabled={bgImg.useCol} label="Background Image" value={typeof tmpBg === "string" ? null : tmpBg} onChange={(e) => { setTmpBg(e); setBgImgErr(false) }} error={bgImgErr} className="w-[15svw]" placeholder="Click here to choose" accept="image/png,image/jpeg" clearable leftSection={<ActionIcon className="mr-1" onClick={handleBgUp} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />
                                     </HoverCard.Target>
                                     <HoverCard.Dropdown>
                                         <Text c="red">Uploaded background images will NOT be synced across devices!</Text>
@@ -567,9 +571,9 @@ export default function Options() {
                                     </HoverCard.Dropdown>
                                 </HoverCard>)
                                 :
-                                (<TextInput label="Background Url" value={typeof tmpBg !== "string" ? "" : tmpBg} onChange={(e)=>{setTmpBg(e.currentTarget.value) ; setBgImgErr(false)}} error={bgImgErr} className="w-[25svw]" leftSection={<ActionIcon className="mr-1" onClick={handleBgUp} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />)
+                                (<TextInput disabled={bgImg.useCol} label="Background Url" value={typeof tmpBg !== "string" ? "" : tmpBg} onChange={(e)=>{setTmpBg(e.currentTarget.value) ; setBgImgErr(false)}} error={bgImgErr} className="w-[25svw]" leftSection={<ActionIcon disabled={bgImg.useCol} className="mr-1" onClick={handleBgUp} ><Icon icon={"material-symbols:upload"} /></ActionIcon>} />)
                             }
-                            <Select label="Background Size" value={bgImg.bgSize} className="w-[15vw]"
+                            <Select disabled={bgImg.useCol} label="Background Size" value={bgImg.bgSize} className="w-[15vw]"
                                 data={[{ value: 'cover', label: "Cover" }, { value: 'contain', label: "Contain" }, { value: 'auto', label: "Auto" }]}
                                 onChange={(val, _) => setBgImg({ ...bgImg, bgSize: val })} allowDeselect={false} />
                             <HoverCard className="-ml-2">
@@ -737,7 +741,7 @@ export default function Options() {
                                             </HoverCard.Target>
                                             <HoverCard.Dropdown>
                                                 <Text><Anchor href="https://open-meteo.com/" c="cyan">Open-Meteo</Anchor></Text>Free, max 10000 requests/day
-                                                <Space h="md"/><Text><Anchor href="https://pirateweather.net/en/latest/" c="lime">Pirate Weather</Anchor></Text>Free with alerts available (needs Api key), max 10000 requests/month (~13 requests/hour)
+                                                <Space h="md"/><Text><Anchor href="https://pirateweather.net/en/latest/" c="lime">Pirate Weather</Anchor></Text>Free with alerts available (needs Api key), max 10000 requests/month for free tier (~13 requests/hour)
                                             </HoverCard.Dropdown>
                                         </HoverCard>
                                         <SegmentedControl className="w-[7vw]" value={weather.f ? "F" : "C"} data={[{ value: "C", label: "°C" }, { value: "F", label: "°F" }]} onChange={(val, _) => setWeather({ ...weather, f: val === "F" })} />
@@ -751,6 +755,9 @@ export default function Options() {
                                         { value: "weather", label: "Weather Condition"},
                                         { value: "alert", label: "Weather Alert"},
                                     ]} maxValues={2} placeholder="Up to 2 items" clearable className="w-[25svw]" />
+                                    <Collapse in={weather.provider === "o"}>
+                                        <a href="https://open-meteo.com/">Weather data by Open-Meteo.com</a>
+                                    </Collapse>
                                 </div>
                             </Accordion.Panel>
                         </Accordion.Item>                        
@@ -759,8 +766,8 @@ export default function Options() {
 
                 <Tabs.Panel value="about">
                     <Text>Version: {browser.runtime.getManifest().version}</Text>
-                    <Text>Author: Margano <Anchor variant="text" c="white" href="https://github.com/Marganotvke"><Icon icon="mdi:github" /></Anchor></Text>
-                    <Anchor href="https://github.com/google/material-design-icons/blob/master/LICENSE">Project's Github Repository</Anchor>
+                    <Text>Author: Margano <Anchor variant="text" c="white" href="https://github.com/Marganotvke" target="_blank"><Icon icon="mdi:github" /></Anchor></Text>
+                    <Anchor href="https://github.com/Marganotvke/Supa-Bento" target="_blank">Project's Github Repository</Anchor>
                 </Tabs.Panel>
             </Tabs>
             <Divider my="md" />
@@ -781,13 +788,19 @@ export default function Options() {
             <Dialog opened={fetchFailed} withCloseButton keepMounted={false} onClose={() => setSubmitDialogFailed(false)} withBorder size="lg" radius="md" >
                 <Text c="red">Failed to fetch settings!</Text>
             </Dialog>
-            <Group justify="space-between" >
+            {
+                ["layout", "theme", "apps"].includes(curOpt) ?
+                <Group justify="space-between" >
                 <Group>
                     <Button type="submit" variant="filled" onClick={handleSubmit}>Confirm</Button>
                     <Button variant="default" onClick={handleCancel}>Cancel</Button>
                 </Group>
                 <Button variant="filled" color="red" onClick={() => setModalOpened(true)}>Reset</Button>
-            </Group>
+                </Group>
+                : 
+                <></>
+            }
+            
         </form>
 
     )

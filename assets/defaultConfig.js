@@ -33,6 +33,7 @@ export const DefaultCONFIG = {
             size: "3vh",
         },
         bgImg: {
+            useCol: false, // Directly use bg color or bgImg
             img: "https://picsum.photos/1920/1080",
             imgIsUrl: true,
             bgSize: "cover",
@@ -194,7 +195,6 @@ export const DefaultCONFIG = {
             interval: 30, //minutes
             items: [ //feelsLike, alert, weather, max 2
                 "feelsLike",
-                "alert",
             ],
         }
     
