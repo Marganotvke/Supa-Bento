@@ -1,4 +1,4 @@
-![Supa-Bento](readmeImgSrc\supabentoi.png)
+![Supa-Bento](readmeImgSrc/supabentoi.png)
 🍱 A minimalist, elegant and hackable newtab extension, with easily customizable widgets.
 
 # Features
@@ -36,15 +36,15 @@
 After activating the extension, you can access the options page by clicking the extension icon at the extension bar, then select the gear icon, or visit the manage extension page, then finding the option within the extension's page, of which the location is browser specific. 
 ## Basic Customization
 ### Layout
-![Layout options](readmeImgSrc\layout\chrome-extension___gljccpbnhlcldmbblooehdigbbgchich_options.html.png)
+![Layout options](readmeImgSrc/layout/chrome-extension___gljccpbnhlcldmbblooehdigbbgchich_options.html.png)
 This page consists of all the layout options, where you can customize the general layout, such as the amount of cells and what widgets to be placed inside a cell.
-![Selected layout options](readmeImgSrc\layout\layoutOptSelect.png)
+![Selected layout options](readmeImgSrc/layout/layoutOptSelect.png)
 Here, you can select wanted widgets for any cell. Some widgets will span across multiple cells, of which affected cells will be locked.
-![Clock widget spanning 2 cells](readmeImgSrc\layout\chrome-extension___gljccpbnhlcldmbblooehdigbbgchich_newtab.html5.png)
+![Clock widget spanning 2 cells](readmeImgSrc/layout/chrome-extension___gljccpbnhlcldmbblooehdigbbgchich_newtab.html5.png)
 > [!IMPORTANT]
 > Some widgets here need seperate configurations (e.g. cards). If you added more than one of the same kind into the layout, make sure you have properly configured them within the [Widgets](#widgets) page.
 ### Theme
-![Theme options](readmeImgSrc\theme\chrome-extension___gljccpbnhlcldmbblooehdigbbgchich_options.html6.png)
+![Theme options](readmeImgSrc/theme/chrome-extension___gljccpbnhlcldmbblooehdigbbgchich_options.html6.png)
 This page consists of all the theming options, from texts to background and even animation.
 #### **Font Family**
 You enter a [font family](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family) within this field. In short, enter the name of the font that you want to use, that the browser can see (e.g. installed on your computer). It defaults to whatever font your browser is currently using.
@@ -66,40 +66,40 @@ You can also choose either using an URL or uploading a single image for the back
 
 The gradient colors are a kind of color filter to put on top of the background. Besides the colors, you can specify the angle of the gradient by modifying the Gradient Angle parameter.
 ### Widgets
-![Widget options](readmeImgSrc\widgets\chrome-extension___gljccpbnhlcldmbblooehdigbbgchich_options.htmlw.png)
+![Widget options](readmeImgSrc/widgets/chrome-extension___gljccpbnhlcldmbblooehdigbbgchich_options.htmlw.png)
 Configs for every widget that can be quickly customized is within this page.
 #### **Clock**
-![Clock options](readmeImgSrc\widgets\clockOpt.png)
+![Clock options](readmeImgSrc/widgets/clockOpt.png)
 The clock follows your local time. You can modify the greentings below the clock as well.
-![Clock widget](readmeImgSrc\widgets\clockWid.png)
+![Clock widget](readmeImgSrc/widgets/clockWid.png)
 #### **Date**
-![Date options](readmeImgSrc\widgets\dateOpt.png)
+![Date options](readmeImgSrc/widgets/dateOpt.png)
 You can modify the format of dates using [Day.js formatted string](https://day.js.org/docs/en/display/format). You can also remove one of the lines by leaving them empty.
 #### **Lists**
-![Lists options](readmeImgSrc\widgets\listOpt.png)
+![Lists options](readmeImgSrc/widgets/listOpt.png)
 Here, every list have their seperate configs tab. If you added more than one list within the layout tab, make sure to click the "+" icon here to add another config for your list.<br /><br />
 List configs are applied one by one, columns first.
 ##### Layout
 Every list have a layout you can also modify. You can choose how many sublists there is to a list. At most, you can select 2 sublists for a single list.
 ##### Sublist configs
 Here, you control every single item within a sublist.
-![sublist](readmeImgSrc\widgets\sublist.png)
+![sublist](readmeImgSrc/widgets/sublist.png)
 - **Sublist name**: The name of the sublist. You can choose to type in text (and emojis), or use [Iconify icons](https://iconify.design/). Iconify is a tool to use open source icons within the app. Currently there are over 200k icons within the tool, of which you can choose any as your icon. Make sure to only have one icon string for a single field, since the app cannot detect more than one iconify icon strings at the same time.
 - **Item icon**: The inline icon of the respective item. You can choose to use Iconify icons, or emojis, or even other texts. This co-exists with the title of the item. Do keep in mind that the size is controlled by item text size, not icon size.
 - **Item title**: The text of the item.
 - **Item link**: The link for that specific item.
 
 #### **Cards**
-![cards options](readmeImgSrc\widgets\cardOpt.png)
+![cards options](readmeImgSrc/widgets/cardOpt.png)
 Also known as buttons or cardbox, these are cards that you directly click.
 <br/><br/>Similar to lists, every cardbox have their seperate configs tab. If you added more than one within the layout tab, make sure to click the "+" icon here to add another config.<br /><br />
 Cards configs are applied one by one, columns first.
-![cards](readmeImgSrc\widgets\cards.png)
+![cards](readmeImgSrc/widgets/cards.png)
 ##### Card options
 - **Text**: The text/icon you want to place within the card. You can either place text/emojis, or choose to use [Iconify icons](https://iconify.design/). Iconify is a tool to use open source icons within the app. Currently there are over 200k icons within the tool, of which you can choose any as your icon. Make sure to only have one icon string for a single field, since the app cannot detect more than one iconify icon strings at the same time.
 - **Link**: The link for that item.
 #### **Weather**
-![weather options](readmeImgSrc\widgets\weatherOpt.png)
+![weather options](readmeImgSrc/widgets/weatherOpt.png)
 Here, you can configure how the weather widget behaves.
 ##### Latitude and Longitude
 Enter any the lat&lon of any location you want to see the weather of. You can easily find such information online.
@@ -110,10 +110,10 @@ Currently, this widget supports two service providers, and you can choose to use
 ##### Update interval
 Everytime the page is opened, the widget checks if the current time after last fetching data from the provider is within this timeframe. If not, it will call and fetch new data back to the app. You can manually type in the update interval (in minutes). However, it is recommended to keep it within the default range (15min - 120min) so that you won't get rate limited (especially if you are using Pirate Weather API).
 ###### Weather notices
-![weather notices](readmeImgSrc\widgets\weaNoticeOpt.png)<br/>
+![weather notices](readmeImgSrc/widgets/weaNoticeOpt.png)<br/>
 In this field, you can choose which weather notices to be placed below the temperature. You can choose up to two lines. There are three options:
 
-![Feels Like](readmeImgSrc\widgets\feels.png)
+![Feels Like](readmeImgSrc/widgets/feels.png)
 - **Apparent Temperature (Feels Like)**: Temperature adjusted for wind and humidity. In open-meteo, it is based on the source data, or this formula:
     > AT=Ta+.348∗e−.70∗ws+.70∗(Q/ws+10)−4.25
 
@@ -121,10 +121,10 @@ In this field, you can choose which weather notices to be placed below the tempe
 
     > AT = Ta + 0.33 × rh / 100 × 6.105 × exp(17.27 × Ta / (237.7 + Ta)) − 0.70 × ws − 4.00
 
-![Weather condition](readmeImgSrc\widgets\cond.png)
+![Weather condition](readmeImgSrc/widgets/cond.png)
 - **Weather Condition**: The current condition of the weather. If you enabled weather icons, they display the same thing. If this line is not chosen, you can also hover above the weather icon to see the condition.
   
-![Weather alert](readmeImgSrc\widgets\alert.png)
+![Weather alert](readmeImgSrc/widgets/alert.png)
 - **Weather Alert**: Only available when using Pirate Weather provider. It shows the brief description of any alerts within the specified location.
 
 # Advanced Customization
@@ -133,8 +133,8 @@ If you plan to modify the code and more, make sure you have backup your config f
 It is stored within the assets, called defaultConfig.js. You can modify this file directly as it overwrites the defaultConfigs. You can also add configurations for your custom widgets (if added). Make sure to reset your current configs so the app will use your modified default config file instead of settings from the temporary storage. Clear this extension's cache as well if needed.
 ## Adding custom widgets
 You can add new widgets with the following steps:
-1. Add a new .jsx file that consists of the component needed to the folder [components](components). Make sure it is written with React. TailwindCSS is also used, so you can use tailwind for styling. You can refer to the [template file](templates\template.jsx) for more detail.
-2. Navigate to the components generator file [compGen.jsx](components\compGen.jsx) and add you component to that file. Make sure you have added both the imports and the component to the generating tree.
+1. Add a new .jsx file that consists of the component needed to the folder [components](components). Make sure it is written with React. TailwindCSS is also used, so you can use tailwind for styling. You can refer to the [template file](templates/template.jsx) for more detail.
+2. Navigate to the components generator file [compGen.jsx](components/compGen.jsx) and add you component to that file. Make sure you have added both the imports and the component to the generating tree.
 3. Modify the config files. Refer to [Directly editing the config file](#directly-editing-the-config-file).
 4. Rebuild and run the extension.
 ## Anything else
