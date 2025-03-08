@@ -1,5 +1,5 @@
 ![Supa-Bento](readmeImgSrc/supabentoi.png)
-🍱 A minimalist, elegant and hackable newtab extension, with easily customizable widgets.
+🍱 A minimalist, elegant newtab extension, with easily customizable widgets.
 
 # Contents
 [Features](#features)
