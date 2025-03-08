@@ -31,7 +31,7 @@
 
 # Install
 1. Visit the [releases](https://github.com/Marganotvke/Supa-Bento/releases) page
-2. Download the latest extension package (.crx for chrome, .xpi for firefox)
+2. Download the latest extension package (look out for the name "chrome" for chromium based browsers and "firefox" for firefox based browsers)
 3. Open your extension page, usually located within settings or similar pages
 4. Drag the package into the page
 5. Open a newtab
