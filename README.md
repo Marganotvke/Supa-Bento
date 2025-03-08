@@ -1,5 +1,5 @@
 ![Supa-Bento](readmeImgSrc/supabentoi.png)
-🍱 A minimalist, elegant newtab extension, with easily customizable widgets.
+🍱 A minimalist, elegant newtab extension, with easily customizable widgets. Inspired by [Bento](https://github.com/migueravila/Bento).
 
 # Contents
 - [Features](#features)
@@ -102,7 +102,7 @@ You can modify the format of dates using [Day.js formatted string](https://day.j
 Here, every list have their seperate configs tab. If you added more than one list within the layout tab, make sure to click the "+" icon here to add another config for your list.<br /><br />
 List configs are applied one by one, columns first.
 ##### Layout
-Every list have a layout you can also modify. You can choose how many sublists there is to a list. At most, you can select 2 sublists for a single list.
+Every list have a layout you can also modify. You can choose how many sublists there is to a list. At most, you can have 2 sublists for a single list.
 ##### Sublist configs
 Here, you control every single item within a sublist.
 ![sublist](readmeImgSrc/widgets/sublist.png)
@@ -124,7 +124,7 @@ Cards configs are applied one by one, columns first.
 ![weather options](readmeImgSrc/widgets/weatherOpt.png)
 Here, you can configure how the weather widget behaves.
 ##### Latitude and Longitude
-Enter any the lat&lon of any location you want to see the weather of. You can easily find such information online.
+Enter the lat&lon of any location you want to see the weather of. You can easily find such information online.
 ##### Service Provider
 Currently, this widget supports two service providers, and you can choose to use anyone of them.
 - [**Open-Meteo**](https://open-meteo.com/): A free and open-source weather api provider. It provides 10000 requests per day, which is very generous. Most importantly, it does not require an API key to run. It supports temperature, basic weather information, as well as apparent temperature (feels like).
