@@ -164,7 +164,7 @@ export default function Weather({ config, isHidden, span}){
         <div className={`md:flex ${isHidden ? "hidden" : "flex"} flex-col ${ items.length < 2 ? "py-8" : "py-4"} gap-2 items-center justify-center ${span ? "col-span-4" : ""}`}>
             <div className="flex-1 flex font-bold text-center items-center leading-[1]" style={{fontSize: theme.text.size.primary, color: theme.text.color.fg}}>
                 <div className='has-tooltip'>
-                    {showIcon ? <Icon ref={iconRef} icon={`${weather.weatherIcon}`} style={{ color: theme.accent, fontSize: "12vh" }} onMouseEnter={restartIcon}/> : null}
+                    {showIcon ? <Icon ref={iconRef} icon={`${weather.weatherIcon}`} height="15vh" style={{color: theme.accent}} onMouseEnter={restartIcon} inline/> : null}
                     {!items.includes("weather") ? <span className="rounded p-2 -ml-6 -mt-6 tooltip bg-[--tooltipBg] font-light" style={{ fontSize: theme.text.size.secondary, color: theme.text.color.fg, "--tooltipBg": theme.app, ...anim }}>{weather.weather}</span> : null}
                 </div>
                 {`${weather.temperature}°${f ? "F" : "C"}`}
