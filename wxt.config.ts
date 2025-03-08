@@ -7,7 +7,7 @@ export default defineConfig({
     permissions: ['storage', 'tabs'],
     "browser_specific_settings": {
     "gecko": {
-      "id": "58261562+Marganotvke@users.noreply.github.com",
+      "id": "{8b2c0c71-276f-47e6-b5f5-063e0617fee0}",
     }
   }
   },

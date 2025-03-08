@@ -33,10 +33,12 @@
 1. Visit the [releases](https://github.com/Marganotvke/Supa-Bento/releases) page
 2. Download the latest extension package (look out for the name "chrome" for chromium based browsers and "firefox" for firefox based browsers)
 3. Open your extension page, usually located within settings or similar pages
-4. Drag the package into the page
-5. Open a newtab
-6. If a dialog popped up asking if you allow this extension to change your newtabs page, accept it **(make sure it is this extension!)**
-7. Visit the extension settings page to customize your newtab!
+4. **Make sure you activate the developer mode for extensions!** If you are using firefox, make sure you are using Firefox Developer Edition or other versions that allows installing unsigned add-on. 
+<sup><sub>*Maybe I will release it in store someday who knows ¯\\\_(ツ)\_/¯*</sub></sup>
+5. Drag the package into the page, or click install package and find the downloaded package
+6. Open a newtab
+7. If a dialog popped up asking if you allow this extension to change your newtabs page, accept it **(make sure it is this extension!)**
+8. Visit the extension settings page to customize your newtab!
 
 # Build
 1. Clone this repository
