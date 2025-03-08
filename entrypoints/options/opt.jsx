@@ -549,10 +549,10 @@ export default function Options() {
                         <Text fw={500}>Background</Text><Text className="italic">(Gradient color applies before background image)</Text>
                     </div>
                     <div className="flex flex-col border p-1 gap-1 mb-1">
-                        <SegmentedControl value={bgImg.useCol ? "col" : "img"} onChange={(val) => setBgImg({...bgImg, useCol: val === "col"})} data={[{value: "img", label: "Use Image"}, {value: "col", label: "Use BG color"}]} className="w-[15vw]"/>
+                        <SegmentedControl value={bgImg.useCol ? "col" : "img"} onChange={(val) => setBgImg({...bgImg, useCol: val === "col"})} data={[{value: "img", label: "Use Image"}, {value: "col", label: "Use BG color"}]} className="w-[15svw]"/>
                         <div className="flex items-center gap-5">
                             {bgImg.useCol ? null :
-                            <Image src={bgImg.img} className="w-[15vw] h-[10vh] object-cover" />
+                            <Image src={bgImg.img} className="w-[15svw] h-[10vh] object-cover" />
                         }
                             <div className="flex flex-col items-center gap-1">
                                 <Text>Use Url</Text>
@@ -600,7 +600,7 @@ export default function Options() {
                     <Collapse in={animation.active} className={`flex border mt-1 p-1 items-center gap-5`}>
                         <NumberInput label="Duration (ms)" value={animation.duration} onChange={(e) => setAnimation({ active: animation.active, duration: e })} min={1} max={9999} className={`w-[10svw]`} />
                     </Collapse>
-                    <NumberInput label="Border Radius (px)" value={borderRadius} onChange={setBorderRadius} className="mt-1 w-[8vw]" />
+                    <NumberInput label="Corner Radius (px)" value={borderRadius} onChange={setBorderRadius} className="mt-1 w-[8vw]" />
                 </Tabs.Panel>
 
                 <Tabs.Panel value="apps">
