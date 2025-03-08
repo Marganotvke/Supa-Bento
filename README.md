@@ -1,6 +1,16 @@
 ![Supa-Bento](readmeImgSrc/supabentoi.png)
 🍱 A minimalist, elegant and hackable newtab extension, with easily customizable widgets.
 
+# Contents
+[Features](#features)
+[Install](#install)
+[Build](#build)
+[Customization](#customization)
+    [Basic Customization](#basic-customization)
+    [Advanced Customization](#advanced-customization)
+[Technical Information](#technical-information)
+[Special Thanks](#special-thanks)
+
 # Features
 - Clean and minimalist
 - Customizable layouts and widget placements
@@ -127,18 +137,21 @@ In this field, you can choose which weather notices to be placed below the tempe
 ![Weather alert](readmeImgSrc/widgets/alert.png)
 - **Weather Alert**: Only available when using Pirate Weather provider. It shows the brief description of any alerts within the specified location.
 
-# Advanced Customization
+## Advanced Customization
 If you plan to modify the code and more, make sure you have backup your config first. Most configs are stored in the extension's sync storage. Memos and background images are stored within the extension's local storage.
-## Directly editing the config file
+### Directly editing the config file
 It is stored within the assets, called defaultConfig.js. You can modify this file directly as it overwrites the defaultConfigs. You can also add configurations for your custom widgets (if added). Make sure to reset your current configs so the app will use your modified default config file instead of settings from the temporary storage. Clear this extension's cache as well if needed.
-## Adding custom widgets
+### Adding custom widgets
 You can add new widgets with the following steps:
 1. Add a new .jsx file that consists of the component needed to the folder [components](components). Make sure it is written with React. TailwindCSS is also used, so you can use tailwind for styling. You can refer to the [template file](templates/template.jsx) for more detail.
 2. Navigate to the components generator file [compGen.jsx](components/compGen.jsx) and add you component to that file. Make sure you have added both the imports and the component to the generating tree.
 3. Modify the config files. Refer to [Directly editing the config file](#directly-editing-the-config-file).
 4. Rebuild and run the extension.
-## Anything else
-After all, this is built as an extension for browsers. If you want to, adding more entrypoints such as background scripts, implementing other extension features etc. are also available. Refer to [WXT Docs](https://wxt.dev/guide/introduction.html) for more information.
+### Anything else
+After all, this is built as an extension for browsers. If you want to, adding more entrypoints such as background scripts, implementing other extension features etc. are also available. Refer to [project's technical information](#technical-information) for more detail.
+
+# Technical Information
+This project uses [WXT](https://github.com/wxt-dev/wxt) for base, with [React](https://github.com/facebook/react) as front-end framework, alongside [TailwindCSS](https://github.com/tailwindlabs/tailwindcss). Additionally, [Mantine](https://github.com/mantinedev/mantine) is used for the options page. If you want to redevelop this project, you can refer to documents from these open-source projects.
 
 # Special Thanks
 Thank you [Miguel Ávila](https://github.com/migueravila) for the amazing [Bento](https://github.com/migueravila/Bento) and its contributors, which inspired me to do this project.
