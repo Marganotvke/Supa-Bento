@@ -22,11 +22,13 @@
 
 ## Screenshots
 <details>
-<summary>Click to see screenshots</summary>
+<summary>Click to see the screenshots!</summary>
 
 ![SupaBento Screenshot A](readmeImgSrc/ssA.png)
 ![SupaBento Screenshot B](readmeImgSrc/ssB.png)
 ![SupaBento Screenshot C](readmeImgSrc/ssC.png)
+![SupaBento Screenshot C](readmeImgSrc/ssD.png)
+![SupaBento Screenshot C](readmeImgSrc/ssE.png)
 </details>
 
 # Install
@@ -96,7 +98,7 @@ The clock follows your local time. You can modify the greetings below the clock 
 ![Clock widget](readmeImgSrc/widgets/clockWid.png)
 #### **Date**
 ![Date options](readmeImgSrc/widgets/dateOpt.png)
-You can modify the format of dates using [Day.js formatted string](https://day.js.org/docs/en/display/format). You can also remove one of the lines by leaving them empty.
+You can modify the format of dates using [Day.js formatted string](https://day.js.org/docs/en/display/format). Advanced format is also supported. You can also remove one of the lines by leaving them empty.
 #### **Lists**
 ![Lists options](readmeImgSrc/widgets/listOpt.png)
 Here, every list has its separate configs tab. If you added more than one list within the layout tab, make sure to click the "+" icon here to add another config for your list.<br /><br />

@@ -1,4 +1,9 @@
 import dayjs from 'dayjs';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+
+dayjs.extend(advancedFormat);
+dayjs.extend(weekOfYear);
 
 export default function Dates({config, isHidden, span}) {
     const theme = config.theme;

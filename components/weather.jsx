@@ -173,11 +173,9 @@ export default function Weather({ config, isHidden, span}){
 
     return (
         <div className={`md:flex ${isHidden ? "hidden" : "flex"} flex-col ${ items.length < 2 ? "py-8" : "py-4"} gap-2 items-center justify-center ${span ? "col-span-4" : ""}`}>
+            {!items.includes("weather") ? <span className={`${show ? "visible opacity-100" : "invisible opacity-0"} rounded px-1 tooltip bg-[--tooltipBg] font-light`} style={{ fontSize: theme.text.size.secondary, color: theme.text.color.fg, "--tooltipBg": theme.app, ...anim }}>{weather.weather}</span> : null}
             <div className="flex-1 flex font-bold text-center items-center leading-[1]" style={{fontSize: theme.text.size.primary, color: theme.text.color.fg}}>
-                <div>
-                    {showIcon ? <Icon ref={iconRef} icon={`${weather.weatherIcon}`} height="15vh" style={{color: theme.accent}} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} inline className="p-1"/> : null}
-                    {!items.includes("weather") ? <span className={`${show ? "visible opacity-100" : "invisible opacity-0"} rounded p-2 -ml-6 -mt-6 tooltip bg-[--tooltipBg] font-light`} style={{ fontSize: theme.text.size.secondary, color: theme.text.color.fg, "--tooltipBg": theme.app, ...anim }}>{weather.weather}</span> : null}
-                </div>
+                {showIcon ? <Icon ref={iconRef} icon={`${weather.weatherIcon}`} height="15vh" style={{color: theme.accent}} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} inline className="p-1"/> : null}
                 {`${weather.temperature}°${f ? "F" : "C"}`}
             </div>
             <div className="flex-shrink flex-col gap-2 font-light text-center" style={{ fontSize: theme.text.size.secondary, color: theme.text.color.fg }}>

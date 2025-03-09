@@ -658,7 +658,7 @@ export default function Options() {
                                             <Icon icon="material-symbols:info" height="20" />
                                         </HoverCard.Target>
                                         <HoverCard.Dropdown>
-                                            <Text>Uses Dayjs format string: <Anchor href="https://day.js.org/docs/en/display/format" target="_blank">day.js.org</Anchor></Text>
+                                            <Text>Uses Dayjs format string (Advanced format also supported): <Anchor href="https://day.js.org/docs/en/display/format" target="_blank">day.js.org</Anchor></Text>
                                         </HoverCard.Dropdown>
                                     </HoverCard>
                                 </div>
