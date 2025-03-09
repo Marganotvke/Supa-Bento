@@ -1,32 +1,35 @@
 import { useEffect, useState } from 'react';
 
 function _time(now, config){
+    const appConf = config.apps.clock;
     var hours = now.getHours();
     const minutes =  ('0' + now.getMinutes()).slice(-2);
     var seconds = now.getSeconds();
-    const ampm = hours >= 12 ? config.apps.clock.pm : config.apps.clock.am;
+    const ampm = hours >= 12 ? appConf.pm : appConf.am;
     var sep;
-    if(config.apps.clock.pulse){
-        sep = seconds % 2 === 0 ? config.apps.clock.separator : " ";
-        sep = config.apps.clock.showSec ? config.apps.clock.separator : sep;
+    if(appConf.pulse){
+        sep = seconds % 2 === 0 ? appConf.separator : " ";
+        sep = appConf.showSec ? appConf.separator : sep;
     }
-    seconds = config.apps.clock.showSec ? ('0' + now.getSeconds()).slice(-2) : "";
+    seconds = appConf.showSec ? ('0' + now.getSeconds()).slice(-2) : "";
 
     var greet;
     if (hours >= 6 && hours < 12){
-        greet = `${config.apps.clock.greet.morning}${config.apps.clock.greet.name}`;
+        greet = `${appConf.greet.morning}${appConf.greet.name}`;
     }else if (hours >= 12 && hours < 18){
-        greet = `${config.apps.clock.greet.afternoon}${config.apps.clock.greet.name}`;
+        greet = `${appConf.greet.afternoon}${appConf.greet.name}`;
     }else if (hours >= 18 && hours < 21){
-        greet = `${config.apps.clock.greet.evening}${config.apps.clock.greet.name}`;
+        greet = `${appConf.greet.evening}${appConf.greet.name}`;
     }else{
-        greet = `${config.apps.clock.greet.night}${config.apps.clock.greet.name}`;
+        greet = `${appConf.greet.night}${appConf.greet.name}`;
     }
 
-    if (config.apps.clock.format === 12){
+    if (appConf.format12){
         hours = hours % 12;
         hours = hours ? hours : 12;
-    }else{
+    }
+    
+    if (!appConf.format12 || appConf.lead0){
         hours = ('0' + hours).slice(-2);
     }
 

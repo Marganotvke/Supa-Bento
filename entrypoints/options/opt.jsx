@@ -91,6 +91,7 @@ export default function Options() {
     const [clock, setClock] = useState({
         format12: true,
         showSec: false,
+        lead0: true,
         separator: ":",
         pulse: true,
         am: "a.m.",
@@ -613,6 +614,7 @@ export default function Options() {
                                         <SegmentedControl value={clock.format12 ? "12" : "24"} data={[{ value: "12", label: "12 Hour" }, { value: "24", label: "24 Hour" }]} onChange={(val, _) => setClock({ ...clock, format12: val === "12" })} />
                                     </div>
                                     <div className="flex gap-2 items-center">
+                                        <Checkbox label="Leading 0 (12 hr. only)" checked={clock.lead0} onChange={(e) => setClock({ ...clock, lead0: e.currentTarget.checked })} />
                                         <Checkbox label="Show Seconds" checked={clock.showSec} onChange={(e) => setClock({ ...clock, showSec: e.currentTarget.checked })} />
                                         <Checkbox label="Pulse Separator" checked={clock.pulse} onChange={(e) => setClock({ ...clock, pulse: e.currentTarget.checked })} />
                                     </div>

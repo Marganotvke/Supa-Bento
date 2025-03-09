@@ -53,6 +53,7 @@ export const DefaultCONFIG = {
         clock: {
             format12: true, // 12 or 24, other number will be regarded as 24
             showSec: false, // this overrides separator pulsing
+            lead0: true,
             separator: ":",
             pulse: true,
             am: "a.m.",

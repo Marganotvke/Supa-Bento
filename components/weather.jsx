@@ -109,6 +109,8 @@ function _weatherItem(i, weather, f, item){
 }
 
 export default function Weather({ config, isHidden, span}){
+    const [show, setShow] = useState(false);
+
     const nowUnix = Date.now();
 
     const theme = config.theme;
@@ -160,12 +162,21 @@ export default function Weather({ config, isHidden, span}){
         fetchFromStorage();
     }, []);
 
+    const handleMouseEnter = () =>{
+        restartIcon();
+        setShow(true);
+    }
+
+    const handleMouseLeave = () => {
+        setShow(false);
+    }
+
     return (
         <div className={`md:flex ${isHidden ? "hidden" : "flex"} flex-col ${ items.length < 2 ? "py-8" : "py-4"} gap-2 items-center justify-center ${span ? "col-span-4" : ""}`}>
             <div className="flex-1 flex font-bold text-center items-center leading-[1]" style={{fontSize: theme.text.size.primary, color: theme.text.color.fg}}>
-                <div className='has-tooltip'>
-                    {showIcon ? <Icon ref={iconRef} icon={`${weather.weatherIcon}`} height="15vh" style={{color: theme.accent}} onMouseEnter={restartIcon} inline/> : null}
-                    {!items.includes("weather") ? <span className="rounded p-2 -ml-6 -mt-6 tooltip bg-[--tooltipBg] font-light" style={{ fontSize: theme.text.size.secondary, color: theme.text.color.fg, "--tooltipBg": theme.app, ...anim }}>{weather.weather}</span> : null}
+                <div>
+                    {showIcon ? <Icon ref={iconRef} icon={`${weather.weatherIcon}`} height="15vh" style={{color: theme.accent}} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} inline className="p-1"/> : null}
+                    {!items.includes("weather") ? <span className={`${show ? "visible opacity-100" : "invisible opacity-0"} rounded p-2 -ml-6 -mt-6 tooltip bg-[--tooltipBg] font-light`} style={{ fontSize: theme.text.size.secondary, color: theme.text.color.fg, "--tooltipBg": theme.app, ...anim }}>{weather.weather}</span> : null}
                 </div>
                 {`${weather.temperature}°${f ? "F" : "C"}`}
             </div>
