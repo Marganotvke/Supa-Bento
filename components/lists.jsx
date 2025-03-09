@@ -43,9 +43,10 @@ export default function ListBox({idx, config ,isHidden}){
 
     return <>
         <div style={{gridTemplateColumns: `repeat(${listConf.layout.cols}, 1fr)`, gap: `${listConf.layout.gap}rem`}}
-            className={`md:grid ${isHidden? "hidden" : "grid"} py-2 px-2 text-[--text] hover:text-[--hoverText]`} >
+            className={`md:grid ${isHidden? "hidden" : "grid"} p-2 text-[--text] hover:text-[--hoverText]`} >
             {listConf.content.map((list, i) => {
-                    return _listItem(i, list, config, animation)
+                    if (i >= listConf.layout.cols){return null;}
+                    return (_listItem(i, list, config, animation));
                 }
             )}
         </div>

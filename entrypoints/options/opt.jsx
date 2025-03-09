@@ -212,53 +212,6 @@ export default function Options() {
             <option hidden value="empty">Empty</option>
         </select>
     );
-    
-    const ListPanel = ({ list, idx, lists, setLists }) => (
-        <Tabs.Panel key={idx} value={`list${idx}`} >
-            <Text fw={500}>Layout</Text>
-            <div className="flex gap-2 border p-1 items-center mb-1">
-                <NumberInput label="Sublists" value={list.layout.cols} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, layout: { ...x.layout, cols: e } } : x))} min={1} max={2} step={1} className="w-[7svw]" />
-                <NumberInput label="Gap (rem)" value={list.layout.gap} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, layout: { ...x.layout, gap: e } } : x))} min={0} max={6} step={1} className="w-[7svw]" />
-            </div>
-            <Text fw={500}>Sublists</Text>
-            <div className="flex gap-2">
-                <SublistPanel list={list} idx={idx} sublistIdx={0} lists={lists} setLists={setLists} />
-                <SublistPanel list={list} idx={idx} sublistIdx={1} lists={lists} setLists={setLists} />
-            </div>
-        </Tabs.Panel>
-    );
-    
-    const SublistPanel = ({ list, idx, sublistIdx, lists, setLists }) => (
-        <div className={`${list.layout.cols >= sublistIdx + 1 ? "flex" : "hidden"} flex-col gap-2 border p-1 justify-center m-1`}>
-            <div className="flex gap-2 items-center">
-                <Checkbox label="Use Iconify Icon as sublist name?" checked={list.content[sublistIdx].iconType} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, iconType: e.currentTarget.checked } : y) } : x))} />
-                <HoverCard>
-                    <HoverCard.Target>
-                        <Icon icon="material-symbols:info" height="20" />
-                    </HoverCard.Target>
-                    <HoverCard.Dropdown>
-                        <Anchor href="https://icon-sets.iconify.design/" target="_blank">Iconify Icons</Anchor>
-                        <Space />Enable to use Iconify Icons as sublist names
-                    </HoverCard.Dropdown>
-                </HoverCard>
-            </div>
-            <div className="flex gap-1">
-                <TextInput label={`Sublist ${sublistIdx + 1} ${list.content[sublistIdx].iconType ? "Icon" : ""} Name`} value={list.content[sublistIdx].iconTitle} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, iconTitle: e.currentTarget.value } : y) } : x))} className="w-[15svw]" />
-                <NumberInput label="Gap (rem)" value={list.content[sublistIdx].gap} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, gap: e } : y) } : x))} min={0} max={6} step={1} className="w-[7svw]" />
-            </div>
-            {list.content[sublistIdx].items.map((item, iidx) => (
-                <div key={`lsi${idx}${iidx}`} className="flex gap-1">
-                    <div className="flex flex-col gap-2 items-center w-[5svw]">
-                        <Text size={"sm"} className="text-wrap text-center">Use Iconify</Text>
-                        <Switch checked={item.iconType} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, iconType: e.currentTarget.checked } : z) } : y) } : x))} />
-                    </div>
-                    <TextInput label={`Item ${iidx + 1} Icon`} value={item.icon} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, icon: e.currentTarget.value } : z) } : y) } : x))} className="w-[10svw]" />
-                    <TextInput label={`Item ${iidx + 1} Title`} value={item.title} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, title: e.currentTarget.value } : z) } : y) } : x))} className="w-[10svw]" />
-                    <TextInput label={`Item ${iidx + 1} Link`} value={item.link} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sublistIdx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, link: e.currentTarget.value } : z) } : y) } : x))} className="w-[10svw]" />
-                </div>
-            ))}
-        </div>
-    );
 
     const [listFocus, setListFocus] = useState(``);
     const [cardFocus, setCardFocus] = useState(``);
@@ -285,7 +238,7 @@ export default function Options() {
 
     const handleDeleteList = (e) => {
         e.preventDefault();
-        setLists([...lists].filter((_, idx) => idx !== parseInt(listFocus.slice(-1))));
+        setLists((prev) => [...prev].filter((_, idx) => idx !== parseInt(listFocus.slice(-1))));
         setListFocus(lists.length > 1 ? `list${lists.length - 2}` : ``);
     }
 
@@ -304,10 +257,6 @@ export default function Options() {
         .map((_, idx) => {
             return <Tabs.Tab key={idx} value={`list${idx}`} rightSection={<div onClick={handleDeleteList} className="hover:bg-slate-800 p-1 -m-1 rounded-md"><Icon icon="material-symbols:close" /></div>}>{`List ${idx + 1}`}</Tabs.Tab>;
         });
-
-    const pillsPanels = lists.map((list, idx) => (
-        <ListPanel key={idx} list={list} idx={idx} lists={lists} setLists={setLists} />
-    ));
 
     const cardPanels = cards
         .map((card, idx) => {
@@ -336,8 +285,8 @@ export default function Options() {
                             if (iidx >= card.layout.cols * card.layout.rows) { return; }
                             return <div key={`ci${idx}${iidx}`} className="flex gap-1">
                                 <div className="flex flex-col gap-2 items-center w-[5svw]">
-                                    <Text size={"sm"} className="text-wrap text-center">Use Iconify</Text>
-                                    <Switch checked={item.iconType} onChange={(e) => setCards([...cards].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === iidx ? { ...y, iconType: e.currentTarget.checked } : y) } : x))} />
+                                    <Text size={"sm"} className="text-wrap text-center leading-[1]">Use Iconify</Text>
+                                    <Checkbox checked={item.iconType} onChange={(e) => setCards([...cards].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === iidx ? { ...y, iconType: e.currentTarget.checked } : y) } : x))} />
                                 </div>
                                 <TextInput label={`Card ${iidx + 1} ${item.iconType ? "Icon" : "Text"}`} value={item.iconTitle} onChange={(e) => setCards([...cards].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === iidx ? { ...y, iconTitle: e.currentTarget.value } : y) } : x))} className="w-[10svw]" />
                                 <TextInput label={`Card ${iidx + 1} Link`} value={item.link} onChange={(e) => setCards([...cards].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === iidx ? { ...y, link: e.currentTarget.value } : y) } : x))} className="w-[10svw]" />
@@ -346,6 +295,56 @@ export default function Options() {
                     </div>
 
                 </Tabs.Panel>
+            );
+        });
+
+        const pillsPanels = lists.map((list, idx) => {
+            return (
+            <Tabs.Panel key={idx} value={`list${idx}`}>
+                <Text fw={500}>Layout</Text>
+                <div className="flex gap-2 items-center border p-1 mb-1">
+                <NumberInput label="Sublists" value={list.layout.cols} max={2} min={1} step={1} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, layout: { ...x.layout, cols: e } } : x))} className="w-[7svw]" />
+                <NumberInput label="Gap (rem)" value={list.layout.gap} min={0} max={6} step={1} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, layout: { ...x.layout, gap: e } } : x))} className="w-[7svw]" />
+                </div>
+                <div className="flex gap-1 items-center">
+                <Text fw={500}>Sublist Configs</Text>
+                </div>
+                <div className="flex gap-2 p-1 mb-1">
+                {list.content.map((sublist, sidx) => {
+                    if(sidx >= list.layout.cols) { return; }
+                    return (
+                    <div key={`li${idx}${sidx}`} className="flex flex-col gap-2 border p-1 mb-1 w-[45%]">
+                        <Text fw={500}>Sublist {sidx + 1}</Text>
+                        <div className="flex gap-1 items-center">
+                        <Checkbox label="Use Iconify Icons" checked={sublist.iconType} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sidx ? { ...y, iconType: e.currentTarget.checked } : y) } : x))} />
+                        <HoverCard>
+                            <HoverCard.Target>
+                                <Icon icon="material-symbols:info" height="20" />
+                            </HoverCard.Target>
+                            <HoverCard.Dropdown>
+                                <Anchor href="https://icon-sets.iconify.design/" target="_blank">Iconify Icons</Anchor>
+                                <Space />Enable to use Iconify Icons as sublist names
+                            </HoverCard.Dropdown>
+                        </HoverCard>
+                        </div>
+                        <TextInput label={`Sublist ${sidx + 1} ${sublist.iconType ? "Icon Name" : "Text"}`} value={sublist.iconTitle} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sidx ? { ...y, iconTitle: e.currentTarget.value } : y) } : x))} className="w-[15svw]" />
+                        <div className="flex flex-col gap-2">
+                            {sublist.items.map((item, iidx) => (
+                            <div key={`sli${idx}${sidx}${iidx}`} className="flex gap-2 items-center ">
+                                <div className="flex flex-col gap-1 items-center justify-center">
+                                    <Text size={"sm"} className="text-wrap text-center leading-[1]">Use Iconify</Text>                                    
+                                    <Checkbox checked={item.iconType} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sidx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, iconType: e.currentTarget.checked } : z) } : y) } : x))} />
+                                </div>
+                                <TextInput label={`Item ${iidx + 1} Icon`} value={item.icon} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sidx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, icon: e.currentTarget.value } : z) } : y) } : x))} className="w-[15svw]" />
+                                <TextInput label={`Item ${iidx + 1} Title`} value={item.title} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sidx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, title: e.currentTarget.value } : z) } : y) } : x))} className="w-[15svw]" />
+                                <TextInput label={`Item ${iidx + 1} Link`} value={item.link} onChange={(e) => setLists([...lists].map((x, i) => i === idx ? { ...x, content: x.content.map((y, j) => j === sidx ? { ...y, items: y.items.map((z, k) => k === iidx ? { ...z, link: e.currentTarget.value } : z) } : y) } : x))} className="w-[15svw]" />
+                            </div>
+                                ))}
+                        </div>
+                    </div>
+                )})}
+                </div>
+            </Tabs.Panel>
             );
         });
 
