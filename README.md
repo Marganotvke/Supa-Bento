@@ -21,15 +21,11 @@
 - Easy to implement extensive customization such as custom widgets with modular JavaScript files
 
 ## Screenshots
-<details>
-<summary>Click to see the screenshots!</summary>
-
 ![SupaBento Screenshot A](readmeImgSrc/ssA.png)
 ![SupaBento Screenshot B](readmeImgSrc/ssB.png)
 ![SupaBento Screenshot C](readmeImgSrc/ssC.png)
 ![SupaBento Screenshot C](readmeImgSrc/ssD.png)
 ![SupaBento Screenshot C](readmeImgSrc/ssE.png)
-</details>
 
 # Install
 1. Visit the [releases](https://github.com/Marganotvke/Supa-Bento/releases) page

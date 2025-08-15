@@ -1,6 +1,6 @@
 import {useEffect, useState, useRef} from 'react';
 import { Icon } from "@iconify-icon/react";
-import { storage } from "wxt/storage";
+import { storage } from "#imports";
 
 function _decodeWeather(prov, res){
     const weatherCodeDecode = {

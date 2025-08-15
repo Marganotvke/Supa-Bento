@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { DefaultCONFIG } from '../../assets/defaultConfig';
-import { storage } from "wxt/storage";
+import { storage } from "#imports";
 import { ActionIcon, Accordion, Anchor, AngleSlider, Button, Checkbox, Collapse, ColorInput, Dialog, Divider, FileInput, Group, HoverCard, Image, Modal, MultiSelect, NumberInput, Select, SegmentedControl, Slider, Switch, Tabs, Text, TextInput, Space } from "@mantine/core";
 import { Icon } from '@iconify-icon/react';
 

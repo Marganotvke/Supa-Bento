@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from 'react-dom/client';
 import LayoutGenerator from "../../components/layoutGen.jsx";
 import { DefaultCONFIG } from '../../assets/defaultConfig.js';
-import { storage } from "wxt/storage";
+import { storage } from "#imports";
 
 (async () => { //IIFE
     const usrConfig = storage.defineItem(
