@@ -58,6 +58,7 @@ After activating the extension, you can access the options page by clicking the 
 ### Layout
 ![Layout options](readmeImgSrc/layout/chrome-extension___gljccpbnhlcldmbblooehdigbbgchich_options.html.png)
 This page consists of all the layout options, where you can customize the general layout, such as the number of cells and what widgets to be placed inside a cell.
+<br />
 **Pre-installed widgets**: Clock , Date, List Buttons, Cards, Weather, Memo
 ![Selected layout options](readmeImgSrc/layout/layoutOptSelect.png)
 Here, you can select wanted widgets for any cell. Some widgets will span across multiple cells, of which affected cells will be locked.
