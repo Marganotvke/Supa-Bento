@@ -40,6 +40,9 @@ export default function Options() {
     const [submitDialogFailed, setSubmitDialogFailed] = useState(false);
     const [submitFailContent, setSubmitFailContent] = useState("");
     const [bgImgErr, setBgImgErr] = useState(false);
+    const [importDialogOpened, setImportDialogOpened] = useState(false);
+    const [importFailed, setImportFailed] = useState(false);
+    const [importFailContent, setImportFailContent] = useState("");
     const [curOpt, setCurOpt] = useState("layout");
 
     //see default config
@@ -404,6 +407,100 @@ export default function Options() {
         setModalOpened(false);
         window.location.reload();
         console.log("User reset defaults");
+    }
+
+    // Export current config as JSON file
+    const handleExport = async () => {
+        try {
+            const packagedConfig = {
+                layout: {
+                    cols: cols,
+                    rows: rows,
+                    gap: gap,
+                    items: [...items.map((x,idx) => skipIdx.has(idx) ? "empty" : x)],
+                    skipIdx: [...skipIdx]
+                },
+                theme: {
+                    bg: bg,
+                    accent: accent,
+                    app: app,
+                    text: text,
+                    icon: icon,
+                    bgImg: { ...bgImg },
+                    animation: animation,
+                    borderRadius: borderRadius
+                },
+                apps: {
+                    clock: clock,
+                    date: date,
+                    lists: lists,
+                    cards: cards,
+                    weather: weather
+                }
+            };
+
+            // If there is a locally stored background image (data URL), include it inline
+            const storedBg = await usrBgImg.getValue();
+            if (storedBg && isDataURL(storedBg)) {
+                packagedConfig.theme.bgImg.img = storedBg;
+            }
+
+            const blob = new Blob([JSON.stringify(packagedConfig, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const ts = new Date().toISOString().replace(/[:.]/g, '-');
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `supa-bento-config-${ts}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error(e);
+            setImportFailed(true);
+            setImportFailContent(e?.toString() || "Export failed");
+        }
+    }
+
+    // Import JSON file handler (File object)
+    const handleImportFile = async (file) => {
+        if (!file) { return; }
+        const reader = new FileReader();
+        reader.onload = async () => {
+            try {
+                const parsed = JSON.parse(reader.result);
+
+                // Basic validation
+                if (!parsed || typeof parsed !== 'object' || !parsed.layout || !parsed.theme || !parsed.apps) {
+                    throw new Error('Invalid config file (missing top-level keys: layout, theme, apps)');
+                }
+
+                // If theme.bgImg.img is a data URL, save it to local bg storage and clear the key before saving to sync store
+                if (parsed.theme?.bgImg?.img && isDataURL(parsed.theme.bgImg.img)) {
+                    await usrBgImg.setValue(parsed.theme.bgImg.img).catch((err) => { console.error(err); });
+                    parsed.theme.bgImg.img = "";
+                } else {
+                    // If importing a URL (or empty), remove any existing local bg image so stored bg matches imported config
+                    await usrBgImg.removeValue().catch(() => { });
+                }
+
+                // Save to user config store
+                await usrConfigStore.setValue(parsed);
+
+                setImportDialogOpened(true);
+                setTimeout(() => { setImportDialogOpened(false); window.location.reload(); }, 1200);
+            } catch (e) {
+                console.error(e);
+                setImportFailed(true);
+                setImportFailContent(e?.toString() || 'Failed to import file');
+            }
+        };
+        reader.onerror = (e) => {
+            console.error(e);
+            setImportFailed(true);
+            setImportFailContent('Failed to read file');
+        };
+        reader.readAsText(file);
     }
 
     const handleCancel = async (e) => {
@@ -789,6 +886,10 @@ export default function Options() {
             <Dialog opened={fetchFailed} withCloseButton keepMounted={false} onClose={() => setSubmitDialogFailed(false)} withBorder size="lg" radius="md" >
                 <Text c="red">Failed to fetch settings!</Text>
             </Dialog>
+
+            {/* Hidden native file input for importing config */}
+            <input id="import-config-file" type="file" accept="application/json" style={{ display: 'none' }} onChange={(e) => handleImportFile(e.target.files?.[0])} />
+
             {
                 ["layout", "theme", "apps"].includes(curOpt) ?
                 <Group justify="space-between" >
@@ -796,11 +897,22 @@ export default function Options() {
                     <Button type="submit" variant="filled" onClick={handleSubmit}>Confirm</Button>
                     <Button variant="default" onClick={handleCancel}>Cancel</Button>
                 </Group>
-                <Button variant="filled" color="red" onClick={() => setModalOpened(true)}>Reset</Button>
+                <Group>
+                    <Button variant="outline" onClick={handleExport}>Export Settings</Button>
+                    <Button variant="outline" onClick={() => document.getElementById('import-config-file')?.click()}>Import Settings</Button>
+                    <Button variant="filled" color="red" onClick={() => setModalOpened(true)}>Reset</Button>
+                </Group>
                 </Group>
                 : 
                 <></>
             }
+
+            <Dialog opened={importDialogOpened} withCloseButton keepMounted={false} onClose={() => setImportDialogOpened(false)} withBorder size="lg" radius="md" >
+                <Text>Config imported!</Text>
+            </Dialog>
+            <Dialog opened={importFailed} withCloseButton keepMounted={false} onClose={() => setImportFailed(false)} withBorder size="lg" radius="md" >
+                <Text c="red">Failed to import: {importFailContent}</Text>
+            </Dialog>
             
         </form>
 

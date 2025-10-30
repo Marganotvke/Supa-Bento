@@ -46,10 +46,12 @@
 2. Install requirements
     ```shell
     npm install
+    // pnpm i
     ```
 3. Run build/zip
    ```shell
    npm run dev
+   // pnpm dev
    ```
 
 # Customization
