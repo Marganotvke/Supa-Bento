@@ -43,6 +43,8 @@ export default function Options() {
     const [importDialogOpened, setImportDialogOpened] = useState(false);
     const [importFailed, setImportFailed] = useState(false);
     const [importFailContent, setImportFailContent] = useState("");
+    const [importConfirmOpened, setImportConfirmOpened] = useState(false);
+    const [importPendingFile, setImportPendingFile] = useState(null);
     const [curOpt, setCurOpt] = useState("layout");
 
     //see default config
@@ -877,6 +879,15 @@ export default function Options() {
                     <Button variant="default" onClick={() => setModalOpened(false)}>No</Button>
                 </Group>
             </Modal>
+
+            <Modal keepMounted={false} opened={importConfirmOpened} onClose={() => { setImportConfirmOpened(false); setImportPendingFile(null); }} title="Import Configuration" >
+                <Divider my="md" />
+                <Text className="mb-3" c="orange">Importing a configuration will replace your current settings. Continue?</Text>
+                <Group justify="space-between" >
+                    <Button variant="filled" color="green" onClick={async () => { if (importPendingFile) { await handleImportFile(importPendingFile); } setImportConfirmOpened(false); setImportPendingFile(null); }}>Yes</Button>
+                    <Button variant="default" onClick={() => { setImportConfirmOpened(false); setImportPendingFile(null); }}>No</Button>
+                </Group>
+            </Modal>
             <Dialog opened={dialogOpened} withCloseButton keepMounted={false} onClose={() => setDialogOpened(false)} withBorder size="lg" radius="md" >
                 <Text>Config saved!</Text>
             </Dialog>
@@ -887,8 +898,8 @@ export default function Options() {
                 <Text c="red">Failed to fetch settings!</Text>
             </Dialog>
 
-            {/* Hidden native file input for importing config */}
-            <input id="import-config-file" type="file" accept="application/json" style={{ display: 'none' }} onChange={(e) => handleImportFile(e.target.files?.[0])} />
+            {/* Hidden native file input for importing config (opens confirmation modal) */}
+            <input id="import-config-file" type="file" accept="application/json" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files?.[0]; if (f) { setImportPendingFile(f); setImportConfirmOpened(true); } }} />
 
             {
                 ["layout", "theme", "apps"].includes(curOpt) ?

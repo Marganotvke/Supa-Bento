@@ -151,6 +151,20 @@ In this field, you can choose which weather notices to be placed below the tempe
 ![Weather alert](readmeImgSrc/widgets/alert.png)
 - **Weather Alert**: Only available when using Pirate Weather provider. It shows the brief description of any alerts within the specified location.
 
+## Export / Import Settings
+You can export your current settings as a JSON file or import a previously exported JSON file from the options page.
+
+How to use:
+- Open the extension's Options page (click the extension icon → gear icon, or via the browser extension management page).
+- In the Layout / Theme / Widgets tabs you will find two new buttons: "Export Settings" and "Import Settings".
+- Click "Export Settings" to download the settings file.
+- Click "Import Settings" and choose a previously exported settings file.
+
+Notes:
+- If you have uploaded a background image (not a remote URL), the exported JSON will include it as a data URL (inline). When importing such a file, the extension will store that data URL into the local background image storage and link the imported config to it. Uploaded background images are stored in local storage and are not synced across devices.
+> [!IMPORTANT]
+Imported configs replace your current stored settings!
+
 ## Advanced Customization
 If you plan to modify the code and more, make sure you have backed up your config first. Most configs are stored in the extension's sync storage. Memos and background images are stored within the extension's local storage.
 ### Directly editing the config file
