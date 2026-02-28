@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Icon } from '@iconify-icon/react';
 import Clock from "./clock";
 import Cardbox from "./cards";
 import ListBox from "./lists";
@@ -19,10 +20,20 @@ function SortableWidget({ children, widgetType, index, isInteractiveMode }) {
 
   return (
     <div ref={setNodeRef} style={style} className="interactive-widget relative group">
-      <div {...attributes} {...listeners} className="absolute inset-0 z-10 cursor-move" title="Drag to reorder" />
+      <div {...attributes} {...listeners} className="absolute inset-0 z-10 cursor-move flex items-center justify-center" title="Drag to reorder">
+        <div className="bg-black/70 text-white px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+          <Icon icon="mdi:drag" width="24" height="24" />
+        </div>
+      </div>
       <div className="h-full w-full">{children}</div>
-      <div className="absolute bottom-2 left-2 z-20 opacity-0 group-hover:opacity-50 transition-opacity">
-        <span className="text-white text-sm">☰</span>
+      {/* Settings icon - only shows when hovering directly over the icon */}
+      <div className="absolute top-2 right-2 z-20">
+        <button 
+          className="p-1 bg-black/70 rounded text-white hover:bg-blue-600 opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity" 
+          title="Settings"
+        >
+          <Icon icon="mdi:cog" width="14" height="14" />
+        </button>
       </div>
     </div>
   );

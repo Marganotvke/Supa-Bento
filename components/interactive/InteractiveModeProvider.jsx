@@ -18,30 +18,7 @@ const WIDGET_TYPES = [
   { type: 'empty', name: 'Empty', icon: 'mdi:plus-box-outline', description: 'Empty space', span: 1 },
 ];
 
-const WIDGET_SPANS = { clock: 1, clock2: 2, date: 1, date2: 2, cardbox: 1, listbox: 1, memo: 1, weather: 1, empty: 1 };
-
 const InteractiveModeContext = createContext(null);
-
-// Sortable Widget Wrapper Component
-function SortableWidget({ children, widgetType, index, isInteractiveMode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: widgetType });
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, position: 'relative', height: '100%' };
-
-  if (!isInteractiveMode) return children;
-
-  return (
-    <div ref={setNodeRef} style={style} className="interactive-widget relative group">
-      <div {...attributes} {...listeners} className="absolute inset-0 z-10 cursor-move" title="Drag to reorder" />
-      <div className="h-full w-full">{children}</div>
-      <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-        <WidgetControls widgetType={widgetType} index={index} />
-      </div>
-      <div className="absolute bottom-2 left-2 z-20 opacity-0 group-hover:opacity-50 transition-opacity">
-        <Icon icon="mdi:drag" className="text-white text-sm" />
-      </div>
-    </div>
-  );
-}
 
 // Widget Controls Component
 function WidgetControls({ widgetType, index }) {
@@ -53,14 +30,14 @@ function WidgetControls({ widgetType, index }) {
 
   return (
     <>
-      <div className="flex gap-1 bg-black/50 backdrop-blur-sm rounded-lg p-1">
+      <div className="flex gap-1 bg-black/70 backdrop-blur-sm rounded-lg p-1">
         {hasSettings && (
-          <button onClick={() => handleOpenSettings?.(index)} className="p-1 text-white hover:bg-blue-500/50 rounded" title="Settings">
-            <Icon icon="mdi:cog" />
+          <button onClick={() => handleOpenSettings?.(index)} className="p-1 text-white hover:bg-blue-500/70 rounded" title="Settings">
+            <Icon icon="mdi:cog" width="14" height="14" />
           </button>
         )}
-        <button onClick={() => setShowDeleteConfirm(true)} className="p-1 text-white hover:bg-red-500/50 rounded" title="Delete Widget">
-          <Icon icon="mdi:close" />
+        <button onClick={() => setShowDeleteConfirm(true)} className="p-1 text-white hover:bg-red-500/70 rounded" title="Delete Widget">
+          <Icon icon="mdi:close" width="14" height="14" />
         </button>
       </div>
       {showDeleteConfirm && (
@@ -84,9 +61,102 @@ function WidgetControls({ widgetType, index }) {
   );
 }
 
-// Add Widget Modal
-function AddWidgetModal({ open, onClose, onAdd }) {
+// Sortable Widget with controls
+function SortableWidget({ children, widgetType, index, isInteractiveMode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: widgetType });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, position: 'relative', height: '100%' };
+
+  if (!isInteractiveMode) return children;
+
+  return (
+    <div ref={setNodeRef} style={style} className="interactive-widget relative group">
+      <div {...attributes} {...listeners} className="absolute inset-0 z-10 cursor-move flex items-center justify-center" title="Drag to reorder">
+        <div className="bg-black/60 text-white px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+          <Icon icon="mdi:drag" width="20" height="20" />
+        </div>
+      </div>
+      <div className="h-full w-full">{children}</div>
+      <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+        <WidgetControls widgetType={widgetType} index={index} />
+      </div>
+    </div>
+  );
+}
+
+// Grid Settings Modal
+function GridSettingsModal({ open, onClose, config, onSave }) {
+  const [cols, setCols] = useState(config.layout.cols);
+  const [rows, setRows] = useState(config.layout.rows);
+
   if (!open) return null;
+
+  const handleSave = () => {
+    onSave({ ...config, layout: { ...config.layout, cols, rows } });
+    onClose();
+  };
+
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={onClose}>
+      <div style={{ backgroundColor: '#1a1a1a', padding: '24px', borderRadius: '12px', maxWidth: '350px', width: '90%', color: 'white' }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 style={{ margin: 0 }}>Grid Size</h2>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', fontSize: '20px' }}><Icon icon="mdi:close" /></button>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: 'block', color: '#888', marginBottom: '8px', fontSize: '12px' }}>Columns</label>
+            <select 
+              value={cols} 
+              onChange={(e) => setCols(parseInt(e.target.value))}
+              style={{ width: '100%', padding: '10px', backgroundColor: '#2a2a2a', border: '1px solid #333', borderRadius: '4px', color: '#fff' }}
+            >
+              <option value={2}>2</option>
+              <option value={4}>4</option>
+              <option value={6}>6</option>
+            </select>
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: 'block', color: '#888', marginBottom: '8px', fontSize: '12px' }}>Rows</label>
+            <select 
+              value={rows} 
+              onChange={(e) => setRows(parseInt(e.target.value))}
+              style={{ width: '100%', padding: '10px', backgroundColor: '#2a2a2a', border: '1px solid #333', borderRadius: '4px', color: '#fff' }}
+            >
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+              <option value={4}>4</option>
+              <option value={5}>5</option>
+            </select>
+          </div>
+        </div>
+        
+        <p style={{ fontSize: '12px', color: '#666', marginBottom: '20px' }}>
+          Maximum cells: {cols * rows}. Current widgets: {config.layout.items.length}
+        </p>
+        
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+          <button onClick={onClose} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #444', borderRadius: '4px', color: '#fff', cursor: 'pointer' }}>Cancel</button>
+          <button onClick={handleSave} style={{ padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: '4px', color: '#fff', cursor: 'pointer' }}>Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Add Widget Modal
+function AddWidgetModal({ open, onClose, onAdd, config }) {
+  if (!open) return null;
+
+  const maxCells = config.layout.cols * config.layout.rows;
+  const currentCells = config.layout.items.length;
+  const isFull = currentCells >= maxCells;
+
+  const handleAdd = (widgetType) => {
+    if (isFull) return;
+    onAdd(widgetType);
+  };
+
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={onClose}>
       <div style={{ backgroundColor: '#1a1a1a', padding: '24px', borderRadius: '12px', maxWidth: '600px', width: '90%', maxHeight: '80vh', overflow: 'auto', color: 'white' }} onClick={e => e.stopPropagation()}>
@@ -94,11 +164,30 @@ function AddWidgetModal({ open, onClose, onAdd }) {
           <h2 style={{ margin: 0 }}>Add Widget</h2>
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', fontSize: '20px' }}><Icon icon="mdi:close" /></button>
         </div>
+        
+        {isFull && (
+          <div style={{ backgroundColor: '#7f1d1d', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#fca5a5' }}>
+            Grid is full ({currentCells}/{maxCells} cells). Remove a widget or increase grid size first.
+          </div>
+        )}
+        
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '12px' }}>
           {WIDGET_TYPES.map(widget => (
-            <div key={widget.type} onClick={() => onAdd(widget.type)} style={{ backgroundColor: '#2a2a2a', padding: '16px', borderRadius: '8px', cursor: 'pointer', border: '1px solid #333', transition: 'all 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+            <div 
+              key={widget.type} 
+              onClick={() => handleAdd(widget.type)} 
+              style={{ 
+                backgroundColor: isFull ? '#1a1a1a' : '#2a2a2a', 
+                padding: '16px', 
+                borderRadius: '8px', 
+                cursor: isFull ? 'not-allowed' : 'pointer', 
+                border: '1px solid #333', 
+                transition: 'all 0.2s',
+                opacity: isFull ? 0.5 : 1,
+              }}
+              onMouseEnter={e => { if (!isFull) { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.transform = 'translateY(-2px)'; }}}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Icon icon={widget.icon} style={{ fontSize: '20px' }} /><span style={{ fontWeight: 500 }}>{widget.name}</span></div>
                 {widget.span > 1 && <span style={{ fontSize: '12px', backgroundColor: '#3b82f6', padding: '2px 8px', borderRadius: '4px' }}>{widget.span} cells</span>}
@@ -118,8 +207,7 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
   const [items, setItems] = useState(config.layout.items || []);
   const [activeId, setActiveId] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
-  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
-  const [settingsWidgetIndex, setSettingsWidgetIndex] = useState(null);
+  const [gridModalOpen, setGridModalOpen] = useState(false);
   const [interactiveModeState, setInteractiveModeState] = useState(false);
 
   useEffect(() => {
@@ -159,33 +247,99 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
   };
 
   const handleAddWidget = (widgetType) => {
+    const maxCells = config.layout.cols * config.layout.rows;
+    const currentCells = config.layout.items.length;
+    if (currentCells >= maxCells) return;
+    
     const newItems = [...items, widgetType];
     setItems(newItems);
     onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
     setAddModalOpen(false);
   };
 
+  const handleGridSave = (newConfig) => {
+    const maxCells = newConfig.layout.cols * newConfig.layout.rows;
+    let newItems = [...config.layout.items];
+    if (newItems.length > maxCells) {
+      newItems = newItems.slice(0, maxCells);
+    }
+    const updatedConfig = { ...newConfig, layout: { ...newConfig.layout, items: newItems } };
+    setItems(newItems);
+    onConfigUpdate(updatedConfig);
+  };
+
   const handleToggleInteractiveMode = () => saveInteractiveMode(!interactiveModeState);
 
-  const value = { isInteractiveMode: interactiveModeState, handleDeleteWidget, handleOpenSettings: (i) => { setSettingsWidgetIndex(i); setSettingsModalOpen(true); }, handleAddWidget };
+  const value = { 
+    isInteractiveMode: interactiveModeState, 
+    handleDeleteWidget, 
+    handleOpenSettings: () => {},
+    handleAddWidget 
+  };
 
   return (
     <InteractiveModeContext.Provider value={value}>
-      <button onClick={handleToggleInteractiveMode} className={`fixed top-4 right-4 w-10 h-10 rounded-full shadow-lg flex items-center justify-center z-50 transition-all hover:scale-110 ${interactiveModeState ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-700/80 hover:bg-gray-600 text-white backdrop-blur-sm'}`} title={interactiveModeState ? 'Exit Settings' : 'Enter Settings'}>
-        <Icon icon={interactiveModeState ? 'mdi:check' : 'mdi:cog'} className="text-xl" />
-      </button>
+      {/* Toolbar - only visible in interactive mode */}
+      {interactiveModeState && (
+        <div className="fixed top-4 right-4 z-[9999] flex gap-2">
+          <button 
+            onClick={() => setGridModalOpen(true)} 
+            className="w-10 h-10 rounded-full shadow-lg flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white transition-all hover:scale-110" 
+            title="Grid Settings"
+          >
+            <Icon icon="mdi:grid" className="text-xl" />
+          </button>
+          <button 
+            onClick={handleToggleInteractiveMode} 
+            className="w-10 h-10 rounded-full shadow-lg flex items-center justify-center bg-green-600 hover:bg-green-700 text-white transition-all hover:scale-110" 
+            title="Exit Settings"
+          >
+            <Icon icon="mdi:check" className="text-xl" />
+          </button>
+        </div>
+      )}
+
+      {/* Enter Settings button - only visible on hover when NOT in interactive mode */}
+      {!interactiveModeState && (
+        <div className="fixed top-4 right-4 z-[9999] opacity-0 hover:opacity-100 transition-opacity duration-200">
+          <button 
+            onClick={handleToggleInteractiveMode} 
+            className="w-10 h-10 rounded-full shadow-lg flex items-center justify-center bg-gray-600 hover:bg-gray-500 text-white transition-all hover:scale-110" 
+            title="Enter Settings"
+          >
+            <Icon icon="mdi:cog" className="text-xl" />
+          </button>
+        </div>
+      )}
+
       {interactiveModeState ? (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={e => setActiveId(e.active.id)} onDragEnd={handleDragEnd}>
           <SortableContext items={items} strategy={horizontalListSortingStrategy}>
             <div className="interactive-mode relative">{children}</div>
           </SortableContext>
-          <DragOverlay>{activeId ? <div className="opacity-80 bg-blue-500/20 border-2 border-blue-500 rounded-lg p-4">Dragging: {activeId}</div> : null}</DragOverlay>
-          <button onClick={() => setAddModalOpen(true)} className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center z-50 transition-all hover:scale-110" title="Add Widget">
+          <DragOverlay>
+            {activeId ? (
+              <div className="opacity-90 bg-blue-600/80 border-2 border-white rounded-lg p-4 text-white font-medium shadow-xl">
+                {activeId}
+              </div>
+            ) : null}
+          </DragOverlay>
+          
+          {/* Add Widget Button */}
+          <button 
+            onClick={() => setAddModalOpen(true)} 
+            className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center z-50 transition-all hover:scale-110" 
+            title="Add Widget"
+          >
             <Icon icon="mdi:plus" className="text-2xl" />
           </button>
-          {addModalOpen && <AddWidgetModal open={addModalOpen} onClose={() => setAddModalOpen(false)} onAdd={handleAddWidget} />}
+          
+          <AddWidgetModal open={addModalOpen} onClose={() => setAddModalOpen(false)} onAdd={handleAddWidget} config={config} />
+          <GridSettingsModal open={gridModalOpen} onClose={() => setGridModalOpen(false)} config={config} onSave={handleGridSave} />
         </DndContext>
-      ) : children}
+      ) : (
+        <>{children}</>
+      )}
     </InteractiveModeContext.Provider>
   );
 }
