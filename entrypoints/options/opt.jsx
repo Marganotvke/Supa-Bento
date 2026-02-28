@@ -33,7 +33,7 @@ function isDataURL(s) {
 }
 
 
-export default function Options() {
+export default function Options({ widgetToOpen }) {
     const [modalOpened, setModalOpened] = useState(false);
     const [dialogOpened, setDialogOpened] = useState(false);
     const [fetchFailed, setFetchFailed] = useState(false);
@@ -46,6 +46,32 @@ export default function Options() {
     const [importConfirmOpened, setImportConfirmOpened] = useState(false);
     const [importPendingFile, setImportPendingFile] = useState(null);
     const [curOpt, setCurOpt] = useState("layout");
+    const [accordionValue, setAccordionValue] = useState([]);
+
+    // Handle widgetToOpen prop - navigate to the widget's settings
+    useEffect(() => {
+        if (widgetToOpen) {
+            // Map widget types to accordion values
+            const widgetAccordionMap = {
+                'clock': 'clock',
+                'clock2': 'clock',
+                'date': 'date',
+                'date2': 'date',
+                'cardbox': 'cards',
+                'listbox': 'lists',
+                'memo': 'memo',
+                'weather': 'weather',
+                'empty': null
+            };
+            
+            const accordionKey = widgetAccordionMap[widgetToOpen];
+            if (accordionKey) {
+                // Switch to apps tab and open the accordion
+                setCurOpt("apps");
+                setAccordionValue([accordionKey]);
+            }
+        }
+    }, [widgetToOpen]);
 
     //see default config
     //layout
@@ -703,7 +729,7 @@ export default function Options() {
                 </Tabs.Panel>
 
                 <Tabs.Panel value="apps">
-                    <Accordion multiple >
+                    <Accordion multiple value={accordionValue} onChange={setAccordionValue} >
                         <Accordion.Item value="clock" key="clock">
                             <Accordion.Control icon={<Icon icon="tabler:clock" />}><Text size="xl">Clock</Text></Accordion.Control>
                             <Accordion.Panel>

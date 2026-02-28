@@ -1,2 +1,2 @@
 // Interactive Mode Components
-export { default as InteractiveModeProvider, useInteractiveMode } from './InteractiveModeProvider';
+export { default as InteractiveModeProvider, useInteractiveMode, WidgetControls } from './InteractiveModeProvider';

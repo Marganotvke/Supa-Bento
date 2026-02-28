@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
-import { arrayMove, useSortable, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { arrayMove, useSortable, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Icon } from '@iconify-icon/react';
 import useInteractiveModeStore from '../../hooks/useInteractiveMode';
@@ -20,8 +20,8 @@ const WIDGET_TYPES = [
 
 const InteractiveModeContext = createContext(null);
 
-// Widget Controls Component
-function WidgetControls({ widgetType, index }) {
+// Widget Controls Component - exported for use in compGen.jsx
+export function WidgetControls({ widgetType, index }) {
   const store = useInteractiveModeStore();
   const { handleDeleteWidget, handleOpenSettings } = store || {};
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -58,28 +58,6 @@ function WidgetControls({ widgetType, index }) {
         </div>
       )}
     </>
-  );
-}
-
-// Sortable Widget with controls
-function SortableWidget({ children, widgetType, index, isInteractiveMode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: widgetType });
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, position: 'relative', height: '100%' };
-
-  if (!isInteractiveMode) return children;
-
-  return (
-    <div ref={setNodeRef} style={style} className="interactive-widget relative group">
-      <div {...attributes} {...listeners} className="absolute inset-0 z-10 cursor-move flex items-center justify-center" title="Drag to reorder">
-        <div className="bg-black/60 text-white px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-          <Icon icon="mdi:drag" width="20" height="20" />
-        </div>
-      </div>
-      <div className="h-full w-full">{children}</div>
-      <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-        <WidgetControls widgetType={widgetType} index={index} />
-      </div>
-    </div>
   );
 }
 
@@ -218,8 +196,21 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
   }, []);
 
   useEffect(() => {
-    if (config?.layout?.items) setItems(config.layout.items);
+    if (config?.layout?.items) {
+      // Create unique IDs for each widget
+      const uniqueItems = config.layout.items.map((item, idx) => `${item}-${idx}`);
+      setItems(uniqueItems);
+    }
   }, [config?.layout?.items]);
+
+  // Disable transition during drag for instant swap feel
+  useEffect(() => {
+    if (activeId) {
+      document.body.style.setProperty('--dnd-transition', 'none');
+    } else {
+      document.body.style.setProperty('--dnd-transition', 'transform 0.2s ease');
+    }
+  }, [activeId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -233,17 +224,23 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
       const oldIndex = items.indexOf(active.id);
       const newIndex = items.indexOf(over.id);
       if (oldIndex !== -1 && newIndex !== -1) {
-        const newItems = arrayMove(items, oldIndex, newIndex);
+        // Use swap instead of arrayMove for direct swap behavior
+        const newItems = [...items];
+        [newItems[oldIndex], newItems[newIndex]] = [newItems[newIndex], newItems[oldIndex]];
         setItems(newItems);
-        onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
+        // Extract widget types (before the last dash and number) and save
+        const widgetTypes = newItems.map(item => item.replace(/-[0-9]+$/, ''));
+        onConfigUpdate({ ...config, layout: { ...config.layout, items: widgetTypes } });
       }
     }
   };
 
-  const handleDeleteWidget = (widgetType) => {
-    const newItems = items.filter(item => item !== widgetType);
+  const handleDeleteWidget = (widgetIndex) => {
+    const newItems = items.filter((_, idx) => idx !== widgetIndex);
     setItems(newItems);
-    onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
+    // Extract widget types and save
+    const widgetTypes = newItems.map(item => item.replace(/-[0-9]+$/, ''));
+    onConfigUpdate({ ...config, layout: { ...config.layout, items: widgetTypes } });
   };
 
   const handleAddWidget = (widgetType) => {
@@ -251,9 +248,13 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
     const currentCells = config.layout.items.length;
     if (currentCells >= maxCells) return;
     
-    const newItems = [...items, widgetType];
+    // Create unique ID for the new widget
+    const uniqueId = `${widgetType}-${items.length}`;
+    const newItems = [...items, uniqueId];
     setItems(newItems);
-    onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
+    // Save widget types to config
+    const widgetTypes = newItems.map(item => item.replace(/-[0-9]+$/, ''));
+    onConfigUpdate({ ...config, layout: { ...config.layout, items: widgetTypes } });
     setAddModalOpen(false);
   };
 
@@ -270,10 +271,26 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
 
   const handleToggleInteractiveMode = () => saveInteractiveMode(!interactiveModeState);
 
+  const handleOpenSettings = (index) => {
+    // Open the options page with the widget type as a hash/parameter
+    const widgetType = items[index];
+    if (widgetType) {
+      // Open options page with the widget type
+      browser.runtime.openOptionsPage();
+      // Send a message to the options page to navigate to the specific widget
+      setTimeout(() => {
+        browser.runtime.sendMessage({ 
+          action: 'openWidgetSettings', 
+          widgetType: widgetType 
+        });
+      }, 500);
+    }
+  };
+
   const value = { 
     isInteractiveMode: interactiveModeState, 
     handleDeleteWidget, 
-    handleOpenSettings: () => {},
+    handleOpenSettings,
     handleAddWidget 
   };
 
@@ -313,8 +330,14 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
       )}
 
       {interactiveModeState ? (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={e => setActiveId(e.active.id)} onDragEnd={handleDragEnd}>
-          <SortableContext items={items} strategy={horizontalListSortingStrategy}>
+        <DndContext 
+          sensors={sensors} 
+          collisionDetection={closestCenter} 
+          onDragStart={e => setActiveId(e.active.id)} 
+          onDragEnd={handleDragEnd}
+          modifiers={[]}
+        >
+          <SortableContext items={items} strategy={rectSortingStrategy}>
             <div className="interactive-mode relative">{children}</div>
           </SortableContext>
           <DragOverlay>

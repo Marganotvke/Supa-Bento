@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Icon } from '@iconify-icon/react';
@@ -10,11 +10,12 @@ import Dates from "./date";
 import Empty from "./empty";
 import Weather from "./weather";
 import useInteractiveModeStore from '../hooks/useInteractiveMode';
+import { useInteractiveMode, WidgetControls } from './interactive/index.js';
 
 // Sortable wrapper for widgets
-function SortableWidget({ children, widgetType, index, isInteractiveMode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: widgetType });
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, position: 'relative', height: '100%' };
+function SortableWidget({ children, widgetType, widgetId, index, isInteractiveMode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: widgetId });
+  const style = { transform: CSS.Transform.toString(transform), transition: 'var(--dnd-transition, transform 0.2s ease)', opacity: isDragging ? 0.5 : 1, position: 'relative', height: '100%' };
 
   if (!isInteractiveMode) return children;
 
@@ -26,14 +27,9 @@ function SortableWidget({ children, widgetType, index, isInteractiveMode }) {
         </div>
       </div>
       <div className="h-full w-full">{children}</div>
-      {/* Settings icon - only shows when hovering directly over the icon */}
-      <div className="absolute top-2 right-2 z-20">
-        <button 
-          className="p-1 bg-black/70 rounded text-white hover:bg-blue-600 opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity" 
-          title="Settings"
-        >
-          <Icon icon="mdi:cog" width="14" height="14" />
-        </button>
+      {/* Settings and Delete icons - show on hover */}
+      <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+        <WidgetControls widgetType={widgetType} index={index} />
       </div>
     </div>
   );
@@ -95,7 +91,7 @@ export default function ComponentGenerator({ config }) {
         // Wrap with sortable in interactive mode
         if (isInteractiveMode) {
           return (
-            <SortableWidget key={`${comp}-${i}`} widgetType={comp} index={i} isInteractiveMode={isInteractiveMode}>
+            <SortableWidget key={`${comp}-${i}`} widgetId={`${comp}-${i}`} widgetType={comp} index={i} isInteractiveMode={isInteractiveMode}>
               {widget}
             </SortableWidget>
           );
