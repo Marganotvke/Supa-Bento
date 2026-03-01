@@ -1,9 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
-import { arrayMove, useSortable, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
 import { Icon } from '@iconify-icon/react';
 import useInteractiveModeStore from '../../hooks/useInteractiveMode';
+
+// Custom strategy - no reordering during drag, only swap on drop
+function closestCenterWithNoReorder(context, droppables, draggable) {
+  const closestDroppable = closestCenter(context, droppables, draggable);
+  return closestDroppable ? [closestDroppable] : [];
+}
 
 // WIDGET_TYPES for the add modal
 const WIDGET_TYPES = [
@@ -183,10 +187,10 @@ function AddWidgetModal({ open, onClose, onAdd, config }) {
 export default function InteractiveModeProvider({ config, onConfigUpdate, children }) {
   const { initialize, saveInteractiveMode } = useInteractiveModeStore();
   const [items, setItems] = useState(config.layout.items || []);
-  const [activeId, setActiveId] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [gridModalOpen, setGridModalOpen] = useState(false);
   const [interactiveModeState, setInteractiveModeState] = useState(false);
+  const [activeId, setActiveId] = useState(null);
 
   useEffect(() => {
     initialize();
@@ -197,50 +201,50 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
 
   useEffect(() => {
     if (config?.layout?.items) {
-      // Create unique IDs for each widget
-      const uniqueItems = config.layout.items.map((item, idx) => `${item}-${idx}`);
-      setItems(uniqueItems);
+      setItems(config.layout.items);
     }
   }, [config?.layout?.items]);
 
-  // Disable transition during drag for instant swap feel
-  useEffect(() => {
-    if (activeId) {
-      document.body.style.setProperty('--dnd-transition', 'none');
-    } else {
-      document.body.style.setProperty('--dnd-transition', 'transform 0.2s ease');
-    }
-  }, [activeId]);
+  // Handle drag start
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
+  };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
-
+  // Handle drag end from dnd-kit
   const handleDragEnd = (event) => {
     const { active, over } = event;
     setActiveId(null);
-    if (over && active.id !== over.id) {
+    
+    if (active && over && active.id !== over.id) {
       const oldIndex = items.indexOf(active.id);
       const newIndex = items.indexOf(over.id);
+      
+      // Only swap if both items exist in our list
       if (oldIndex !== -1 && newIndex !== -1) {
-        // Use swap instead of arrayMove for direct swap behavior
+        // Create new array with swapped items
         const newItems = [...items];
         [newItems[oldIndex], newItems[newIndex]] = [newItems[newIndex], newItems[oldIndex]];
+        
         setItems(newItems);
-        // Extract widget types (before the last dash and number) and save
-        const widgetTypes = newItems.map(item => item.replace(/-[0-9]+$/, ''));
-        onConfigUpdate({ ...config, layout: { ...config.layout, items: widgetTypes } });
+        onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
       }
     }
   };
 
+  // Dnd-kit sensors - just pointer for drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
+
   const handleDeleteWidget = (widgetIndex) => {
     const newItems = items.filter((_, idx) => idx !== widgetIndex);
     setItems(newItems);
-    // Extract widget types and save
-    const widgetTypes = newItems.map(item => item.replace(/-[0-9]+$/, ''));
-    onConfigUpdate({ ...config, layout: { ...config.layout, items: widgetTypes } });
+    onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
   };
 
   const handleAddWidget = (widgetType) => {
@@ -248,13 +252,9 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
     const currentCells = config.layout.items.length;
     if (currentCells >= maxCells) return;
     
-    // Create unique ID for the new widget
-    const uniqueId = `${widgetType}-${items.length}`;
-    const newItems = [...items, uniqueId];
+    const newItems = [...items, widgetType];
     setItems(newItems);
-    // Save widget types to config
-    const widgetTypes = newItems.map(item => item.replace(/-[0-9]+$/, ''));
-    onConfigUpdate({ ...config, layout: { ...config.layout, items: widgetTypes } });
+    onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
     setAddModalOpen(false);
   };
 
@@ -264,20 +264,16 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
     if (newItems.length > maxCells) {
       newItems = newItems.slice(0, maxCells);
     }
-    const updatedConfig = { ...newConfig, layout: { ...newConfig.layout, items: newItems } };
     setItems(newItems);
-    onConfigUpdate(updatedConfig);
+    onConfigUpdate({ ...newConfig, layout: { ...newConfig.layout, items: newItems } });
   };
 
   const handleToggleInteractiveMode = () => saveInteractiveMode(!interactiveModeState);
 
   const handleOpenSettings = (index) => {
-    // Open the options page with the widget type as a hash/parameter
     const widgetType = items[index];
     if (widgetType) {
-      // Open options page with the widget type
       browser.runtime.openOptionsPage();
-      // Send a message to the options page to navigate to the specific widget
       setTimeout(() => {
         browser.runtime.sendMessage({ 
           action: 'openWidgetSettings', 
@@ -294,10 +290,11 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
     handleAddWidget 
   };
 
-  return (
-    <InteractiveModeContext.Provider value={value}>
-      {/* Toolbar - only visible in interactive mode */}
-      {interactiveModeState && (
+  // Render interactive mode with dnd-kit
+  if (interactiveModeState) {
+    return (
+      <InteractiveModeContext.Provider value={value}>
+        {/* Toolbar */}
         <div className="fixed top-4 right-4 z-[9999] flex gap-2">
           <button 
             onClick={() => setGridModalOpen(true)} 
@@ -314,55 +311,55 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
             <Icon icon="mdi:check" className="text-xl" />
           </button>
         </div>
-      )}
 
-      {/* Enter Settings button - only visible on hover when NOT in interactive mode */}
-      {!interactiveModeState && (
-        <div className="fixed top-4 right-4 z-[9999] opacity-0 hover:opacity-100 transition-opacity duration-200">
-          <button 
-            onClick={handleToggleInteractiveMode} 
-            className="w-10 h-10 rounded-full shadow-lg flex items-center justify-center bg-gray-600 hover:bg-gray-500 text-white transition-all hover:scale-110" 
-            title="Enter Settings"
-          >
-            <Icon icon="mdi:cog" className="text-xl" />
-          </button>
-        </div>
-      )}
-
-      {interactiveModeState ? (
+        {/* Interactive Grid with dnd-kit - using Draggable (no auto-sorting) */}
         <DndContext 
           sensors={sensors} 
-          collisionDetection={closestCenter} 
-          onDragStart={e => setActiveId(e.active.id)} 
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
-          modifiers={[]}
         >
-          <SortableContext items={items} strategy={rectSortingStrategy}>
-            <div className="interactive-mode relative">{children}</div>
-          </SortableContext>
+          {children}
           <DragOverlay>
             {activeId ? (
-              <div className="opacity-90 bg-blue-600/80 border-2 border-white rounded-lg p-4 text-white font-medium shadow-xl">
-                {activeId}
+              <div className="opacity-90 cursor-grabbing transform scale-105">
+                <div className="bg-gray-100 dark:bg-gray-800 border-2 border-blue-500 border-dashed rounded-lg p-2">
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">Moving...</span>
+                </div>
               </div>
             ) : null}
           </DragOverlay>
-          
-          {/* Add Widget Button */}
-          <button 
-            onClick={() => setAddModalOpen(true)} 
-            className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center z-50 transition-all hover:scale-110" 
-            title="Add Widget"
-          >
-            <Icon icon="mdi:plus" className="text-2xl" />
-          </button>
-          
-          <AddWidgetModal open={addModalOpen} onClose={() => setAddModalOpen(false)} onAdd={handleAddWidget} config={config} />
-          <GridSettingsModal open={gridModalOpen} onClose={() => setGridModalOpen(false)} config={config} onSave={handleGridSave} />
         </DndContext>
-      ) : (
-        <>{children}</>
-      )}
+        
+        {/* Add Widget Button */}
+        <button 
+          onClick={() => setAddModalOpen(true)} 
+          className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center z-50 transition-all hover:scale-110" 
+          title="Add Widget"
+        >
+          <Icon icon="mdi:plus" className="text-2xl" />
+        </button>
+        
+        <AddWidgetModal open={addModalOpen} onClose={() => setAddModalOpen(false)} onAdd={handleAddWidget} config={config} />
+        <GridSettingsModal open={gridModalOpen} onClose={() => setGridModalOpen(false)} config={config} onSave={handleGridSave} />
+      </InteractiveModeContext.Provider>
+    );
+  }
+
+  // Non-interactive mode - just render children
+  return (
+    <InteractiveModeContext.Provider value={value}>
+      {/* Enter Settings button */}
+      <div className="fixed top-4 right-4 z-[9999] opacity-0 hover:opacity-100 transition-opacity duration-200">
+        <button 
+          onClick={handleToggleInteractiveMode} 
+          className="w-10 h-10 rounded-full shadow-lg flex items-center justify-center bg-gray-600 hover:bg-gray-500 text-white transition-all hover:scale-110" 
+          title="Enter Settings"
+        >
+          <Icon icon="mdi:cog" className="text-xl" />
+        </button>
+      </div>
+      {children}
     </InteractiveModeContext.Provider>
   );
 }

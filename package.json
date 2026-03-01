@@ -33,6 +33,10 @@
     "postcss-simple-vars": "^7.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-sortablejs": "^6.1.4",
+    "react-swapy": "^1.0.3",
+    "sortablejs": "^1.15.7",
+    "swapy": "^1.0.5",
     "tailwindcss": "^3.4.19",
     "zustand": "^5.0.11"
   },

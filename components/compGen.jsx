@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { Icon } from '@iconify-icon/react';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
 import Clock from "./clock";
 import Cardbox from "./cards";
 import ListBox from "./lists";
@@ -10,19 +9,36 @@ import Dates from "./date";
 import Empty from "./empty";
 import Weather from "./weather";
 import useInteractiveModeStore from '../hooks/useInteractiveMode';
-import { useInteractiveMode, WidgetControls } from './interactive/index.js';
+import { WidgetControls } from './interactive/index.js';
 
-// Sortable wrapper for widgets
-function SortableWidget({ children, widgetType, widgetId, index, isInteractiveMode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: widgetId });
-  const style = { transform: CSS.Transform.toString(transform), transition: 'var(--dnd-transition, transform 0.2s ease)', opacity: isDragging ? 0.5 : 1, position: 'relative', height: '100%' };
+// Interactive widget wrapper - adds settings/delete controls with dnd-kit draggable + droppable
+function InteractiveWidgetWrapper({ children, widgetType, index, id }) {
+  const { attributes, listeners, setNodeRef: setDraggableRef, isDragging } = useDraggable({ 
+    id, 
+    handle: '.drag-handle' 
+  });
+  
+  // Also make each widget a droppable so we can detect which one we're hovering over
+  const { setNodeRef: setDroppableRef } = useDroppable({ 
+    id 
+  });
 
-  if (!isInteractiveMode) return children;
+  const style = {
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 9999 : 'auto',
+  };
 
   return (
-    <div ref={setNodeRef} style={style} className="interactive-widget relative group">
-      <div {...attributes} {...listeners} className="absolute inset-0 z-10 cursor-move flex items-center justify-center" title="Drag to reorder">
-        <div className="bg-black/70 text-white px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+    <div ref={setDroppableRef} style={style} className={`interactive-widget relative group h-full ${isDragging ? 'cursor-grabbing' : ''}`}>
+      {/* Drag handle - only this element triggers drag */}
+      <div 
+        ref={setDraggableRef}
+        className="drag-handle absolute inset-0 z-10 flex items-center justify-center cursor-grab" 
+        title="Drag to reorder"
+        {...listeners}
+        {...attributes}
+      >
+        <div className="bg-black/70 text-white px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
           <Icon icon="mdi:drag" width="24" height="24" />
         </div>
       </div>
@@ -88,12 +104,12 @@ export default function ComponentGenerator({ config }) {
             widget = <Empty key={i} isHidden={isHidden} />;
         }
         
-        // Wrap with sortable in interactive mode
+        // Wrap with interactive controls in interactive mode
         if (isInteractiveMode) {
           return (
-            <SortableWidget key={`${comp}-${i}`} widgetId={`${comp}-${i}`} widgetType={comp} index={i} isInteractiveMode={isInteractiveMode}>
+            <InteractiveWidgetWrapper key={i} id={comp} widgetType={comp} index={i}>
               {widget}
-            </SortableWidget>
+            </InteractiveWidgetWrapper>
           );
         }
         
