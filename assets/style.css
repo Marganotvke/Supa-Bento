@@ -23,6 +23,37 @@
   transition: transform 0.15s ease;
 }
 
+/* Swap animation */
+.swap-from {
+  animation: swap-from-up 250ms ease-out;
+}
+
+@keyframes swap-from-up {
+  from {
+    transform: translateY(-15px);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.swap-to {
+  animation: swap-to-down 250ms ease-out;
+}
+
+@keyframes swap-to-down {
+  from {
+    transform: translateY(15px);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 /* Drag handle styling */
 .drag-handle {
   touch-action: none;

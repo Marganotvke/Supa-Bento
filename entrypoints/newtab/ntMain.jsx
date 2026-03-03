@@ -10,7 +10,7 @@ function App() {
     const [config, setConfig] = useState(null);
     const [bgImg, setBgImg] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const { saveInteractiveMode } = useInteractiveModeStore;
+    const { saveInteractiveMode } = useInteractiveModeStore();
 
     // Handle messages from popup/options
     useEffect(() => {

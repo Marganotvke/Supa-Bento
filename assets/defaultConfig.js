@@ -5,8 +5,8 @@ export const DefaultCONFIG = {
         gap: 1,
         items:[ // apply cols first
             "clock",
-            "cardbox",
             "date",
+            "cardbox",
             "listbox",
         ],
         skipIdx: [],

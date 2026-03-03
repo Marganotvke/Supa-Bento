@@ -1,182 +1,182 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Icon } from '@iconify-icon/react';
+import Clock from '../../components/clock';
+import Cardbox from '../../components/cards';
+import ListBox from '../../components/lists';
+import Memo from '../../components/memo';
+import Dates from '../../components/date';
+import Empty from '../../components/empty';
+import Weather from '../../components/weather';
 import useInteractiveModeStore from '../../hooks/useInteractiveMode';
 
-// Custom strategy - no reordering during drag, only swap on drop
-function closestCenterWithNoReorder(context, droppables, draggable) {
-  const closestDroppable = closestCenter(context, droppables, draggable);
-  return closestDroppable ? [closestDroppable] : [];
-}
-
-// WIDGET_TYPES for the add modal
-const WIDGET_TYPES = [
-  { type: 'clock', name: 'Clock', icon: 'mdi:clock-outline', description: 'Digital clock with time and greetings', span: 1 },
-  { type: 'clock2', name: 'Clock (Wide)', icon: 'mdi:clock-outline', description: 'Large clock spanning 2 cells', span: 2 },
-  { type: 'date', name: 'Date', icon: 'mdi:calendar', description: 'Current date display', span: 1 },
-  { type: 'date2', name: 'Date (Wide)', icon: 'mdi:calendar', description: 'Large date display spanning 2 cells', span: 2 },
-  { type: 'cardbox', name: 'Cards', icon: 'mdi:cards', description: 'Quick access links', span: 1 },
-  { type: 'listbox', name: 'Lists', icon: 'mdi:format-list-bulleted', description: 'Todo list or bookmarks', span: 1 },
-  { type: 'memo', name: 'Memo', icon: 'mdi:note-text', description: 'Quick notes', span: 1 },
-  { type: 'weather', name: 'Weather', icon: 'mdi:weather-partly-cloudy', description: 'Weather information', span: 1 },
-  { type: 'empty', name: 'Empty', icon: 'mdi:plus-box-outline', description: 'Empty space', span: 1 },
-];
-
-const InteractiveModeContext = createContext(null);
-
-// Widget Controls Component - exported for use in compGen.jsx
-export function WidgetControls({ widgetType, index }) {
-  const store = useInteractiveModeStore();
-  const { handleDeleteWidget, handleOpenSettings } = store || {};
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  const hasSettings = ['clock', 'clock2', 'date', 'date2', 'cardbox', 'listbox', 'memo', 'weather'].includes(widgetType);
-
+// Widget controls component
+function WidgetControls({ widgetType, index }) {
+  const { handleDeleteWidget, handleOpenSettings } = useInteractiveMode();
+  
   return (
     <>
-      <div className="flex gap-1 bg-black/70 backdrop-blur-sm rounded-lg p-1">
-        {hasSettings && (
-          <button onClick={() => handleOpenSettings?.(index)} className="p-1 text-white hover:bg-blue-500/70 rounded" title="Settings">
-            <Icon icon="mdi:cog" width="14" height="14" />
-          </button>
-        )}
-        <button onClick={() => setShowDeleteConfirm(true)} className="p-1 text-white hover:bg-red-500/70 rounded" title="Delete Widget">
-          <Icon icon="mdi:close" width="14" height="14" />
-        </button>
-      </div>
-      {showDeleteConfirm && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowDeleteConfirm(false)}>
-          <div style={{ backgroundColor: '#1a1a1a', padding: '20px', borderRadius: '8px', maxWidth: '400px', color: 'white' }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ margin: '0 0 10px 0' }}>Delete Widget</h3>
-            <p style={{ margin: '0 0 20px 0', color: '#aaa' }}>
-              Are you sure you want to delete this widget?
-              {widgetType === 'listbox' && ' This will also delete all your list items.'}
-              {widgetType === 'cardbox' && ' This will also delete all your cards.'}
-              {widgetType === 'memo' && ' This will also delete your memo content.'}
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button onClick={() => setShowDeleteConfirm(false)} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #444', borderRadius: '4px', color: '#fff', cursor: 'pointer' }}>Cancel</button>
-              <button onClick={() => { handleDeleteWidget?.(widgetType); setShowDeleteConfirm(false); }} style={{ padding: '8px 16px', background: '#e53e3e', border: 'none', borderRadius: '4px', color: '#fff', cursor: 'pointer' }}>Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <button
+        onClick={() => handleOpenSettings(index)}
+        className="w-8 h-8 rounded-full bg-gray-600 hover:bg-gray-500 text-white flex items-center justify-center"
+        title="Widget Settings"
+      >
+        <Icon icon="mdi:cog" width="16" />
+      </button>
+      <button
+        onClick={() => handleDeleteWidget(index)}
+        className="w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center"
+        title="Delete Widget"
+      >
+        <Icon icon="mdi:close" width="16" />
+      </button>
     </>
   );
 }
 
-// Grid Settings Modal
-function GridSettingsModal({ open, onClose, config, onSave }) {
-  const [cols, setCols] = useState(config.layout.cols);
-  const [rows, setRows] = useState(config.layout.rows);
+// Native HTML5 draggable widget for true swap
+function DraggableWidget({ id, widgetType, index, renderWidget, onDragStart, onDragOver, onDrop, isDragging, isDropTarget }) {
+  const handleDragStart = (e) => {
+    e.dataTransfer.setData('text/plain', id);
+    e.dataTransfer.effectAllowed = 'move';
+    onDragStart(index);
+  };
 
-  if (!open) return null;
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    onDragOver(index);
+  };
 
-  const handleSave = () => {
-    onSave({ ...config, layout: { ...config.layout, cols, rows } });
-    onClose();
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const sourceId = e.dataTransfer.getData('text/plain');
+    const sourceIndex = parseInt(sourceId.split('-')[1], 10);
+    onDrop(sourceIndex, index);
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={onClose}>
-      <div style={{ backgroundColor: '#1a1a1a', padding: '24px', borderRadius: '12px', maxWidth: '350px', width: '90%', color: 'white' }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ margin: 0 }}>Grid Size</h2>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', fontSize: '20px' }}><Icon icon="mdi:close" /></button>
+    <div 
+      draggable
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      className={`relative group min-h-[100px] ${isDragging ? 'opacity-30' : ''} ${isDropTarget ? 'ring-4 ring-blue-500 ring-offset-2 rounded-lg' : ''}`}
+      style={{ cursor: 'grab' }}
+    >
+      {/* Drag handle indicator */}
+      <div className="absolute top-2 left-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="w-6 h-6 rounded bg-gray-500/80 flex items-center justify-center text-white">
+          <Icon icon="mdi:drag" width="14" />
         </div>
-        
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
-          <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', color: '#888', marginBottom: '8px', fontSize: '12px' }}>Columns</label>
-            <select 
-              value={cols} 
-              onChange={(e) => setCols(parseInt(e.target.value))}
-              style={{ width: '100%', padding: '10px', backgroundColor: '#2a2a2a', border: '1px solid #333', borderRadius: '4px', color: '#fff' }}
-            >
-              <option value={2}>2</option>
-              <option value={4}>4</option>
-              <option value={6}>6</option>
-            </select>
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', color: '#888', marginBottom: '8px', fontSize: '12px' }}>Rows</label>
-            <select 
-              value={rows} 
-              onChange={(e) => setRows(parseInt(e.target.value))}
-              style={{ width: '100%', padding: '10px', backgroundColor: '#2a2a2a', border: '1px solid #333', borderRadius: '4px', color: '#fff' }}
-            >
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-              <option value={4}>4</option>
-              <option value={5}>5</option>
-            </select>
-          </div>
-        </div>
-        
-        <p style={{ fontSize: '12px', color: '#666', marginBottom: '20px' }}>
-          Maximum cells: {cols * rows}. Current widgets: {config.layout.items.length}
-        </p>
-        
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-          <button onClick={onClose} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #444', borderRadius: '4px', color: '#fff', cursor: 'pointer' }}>Cancel</button>
-          <button onClick={handleSave} style={{ padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: '4px', color: '#fff', cursor: 'pointer' }}>Save</button>
-        </div>
+      </div>
+      {/* Render widget */}
+      {renderWidget(widgetType, index)}
+      {/* Widget controls */}
+      <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+        <WidgetControls widgetType={widgetType} index={index} />
       </div>
     </div>
   );
 }
 
-// Add Widget Modal
+// Create context for interactive mode
+const InteractiveModeContext = createContext(null);
+
+// Modal components
 function AddWidgetModal({ open, onClose, onAdd, config }) {
   if (!open) return null;
-
+  
+  const widgetTypes = [
+    { id: 'clock', name: 'Clock', icon: 'mdi:clock-outline' },
+    { id: 'clock2', name: 'Big Clock', icon: 'mdi:clock-outline' },
+    { id: 'date', name: 'Date', icon: 'mdi:calendar' },
+    { id: 'date2', name: 'Big Date', icon: 'mdi:calendar' },
+    { id: 'weather', name: 'Weather', icon: 'mdi:weather-partly-cloudy' },
+    { id: 'cardbox', name: 'Cards', icon: 'mdi:cards' },
+    { id: 'listbox', name: 'Lists', icon: 'mdi:format-list-bulleted' },
+    { id: 'memo', name: 'Memo', icon: 'mdi:note-text' },
+  ];
+  
   const maxCells = config.layout.cols * config.layout.rows;
   const currentCells = config.layout.items.length;
   const isFull = currentCells >= maxCells;
-
-  const handleAdd = (widgetType) => {
-    if (isFull) return;
-    onAdd(widgetType);
-  };
-
+  
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={onClose}>
-      <div style={{ backgroundColor: '#1a1a1a', padding: '24px', borderRadius: '12px', maxWidth: '600px', width: '90%', maxHeight: '80vh', overflow: 'auto', color: 'white' }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ margin: 0 }}>Add Widget</h2>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', fontSize: '20px' }}><Icon icon="mdi:close" /></button>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[10000]" onClick={onClose}>
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold dark:text-white">Add Widget</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400">
+            <Icon icon="mdi:close" width="24" />
+          </button>
         </div>
-        
-        {isFull && (
-          <div style={{ backgroundColor: '#7f1d1d', padding: '12px', borderRadius: '8px', marginBottom: '16px', color: '#fca5a5' }}>
-            Grid is full ({currentCells}/{maxCells} cells). Remove a widget or increase grid size first.
+        {isFull ? (
+          <p className="text-center text-gray-500 dark:text-gray-400 py-4">
+            Grid is full. Remove a widget first.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {widgetTypes.map(widget => (
+              <button
+                key={widget.id}
+                onClick={() => onAdd(widget.id)}
+                className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900 flex flex-col items-center gap-2 transition-colors"
+              >
+                <Icon icon={widget.icon} width="32" className="text-blue-600 dark:text-blue-400" />
+                <span className="text-sm dark:text-white">{widget.name}</span>
+              </button>
+            ))}
           </div>
         )}
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '12px' }}>
-          {WIDGET_TYPES.map(widget => (
-            <div 
-              key={widget.type} 
-              onClick={() => handleAdd(widget.type)} 
-              style={{ 
-                backgroundColor: isFull ? '#1a1a1a' : '#2a2a2a', 
-                padding: '16px', 
-                borderRadius: '8px', 
-                cursor: isFull ? 'not-allowed' : 'pointer', 
-                border: '1px solid #333', 
-                transition: 'all 0.2s',
-                opacity: isFull ? 0.5 : 1,
-              }}
-              onMouseEnter={e => { if (!isFull) { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.transform = 'translateY(-2px)'; }}}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.transform = 'translateY(0)'; }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Icon icon={widget.icon} style={{ fontSize: '20px' }} /><span style={{ fontWeight: 500 }}>{widget.name}</span></div>
-                {widget.span > 1 && <span style={{ fontSize: '12px', backgroundColor: '#3b82f6', padding: '2px 8px', borderRadius: '4px' }}>{widget.span} cells</span>}
-              </div>
-              <p style={{ margin: 0, fontSize: '12px', color: '#888' }}>{widget.description}</p>
-            </div>
-          ))}
+      </div>
+    </div>
+  );
+}
+
+function GridSettingsModal({ open, onClose, config, onSave }) {
+  const [cols, setCols] = useState(config.layout.cols);
+  const [rows, setRows] = useState(config.layout.rows);
+  
+  if (!open) return null;
+  
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[10000]" onClick={onClose}>
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold dark:text-white">Grid Settings</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400">
+            <Icon icon="mdi:close" width="24" />
+          </button>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium dark:text-white mb-2">Columns: {cols}</label>
+            <input
+              type="range"
+              min="1"
+              max="6"
+              value={cols}
+              onChange={e => setCols(parseInt(e.target.value))}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium dark:text-white mb-2">Rows: {rows}</label>
+            <input
+              type="range"
+              min="1"
+              max="4"
+              value={rows}
+              onChange={e => setRows(parseInt(e.target.value))}
+              className="w-full"
+            />
+          </div>
+          <button
+            onClick={() => onSave({ ...config, layout: { ...config.layout, cols, rows } })}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-colors"
+          >
+            Save
+          </button>
         </div>
       </div>
     </div>
@@ -190,7 +190,8 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [gridModalOpen, setGridModalOpen] = useState(false);
   const [interactiveModeState, setInteractiveModeState] = useState(false);
-  const [activeId, setActiveId] = useState(null);
+  const [dragIndex, setDragIndex] = useState(null);
+  const [hoverIndex, setHoverIndex] = useState(null);
 
   useEffect(() => {
     initialize();
@@ -205,41 +206,56 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
     }
   }, [config?.layout?.items]);
 
-  // Handle drag start
-  const handleDragStart = (event) => {
-    setActiveId(event.active.id);
-  };
-
-  // Handle drag end from dnd-kit
-  const handleDragEnd = (event) => {
+  // Handle native HTML5 drag end - true swap
+  const handleDndKitDragEnd = (event) => {
     const { active, over } = event;
-    setActiveId(null);
     
-    if (active && over && active.id !== over.id) {
-      const oldIndex = items.indexOf(active.id);
-      const newIndex = items.indexOf(over.id);
+    if (!over) return;
+    
+    const oldIndex = items.findIndex((item, idx) => getDraggableId(item, idx) === active.id);
+    const newIndex = items.findIndex((item, idx) => getDraggableId(item, idx) === over.id);
+    
+    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+      const newItems = [...items];
+      const [removed] = newItems.splice(oldIndex, 1);
+      newItems.splice(newIndex, 0, removed);
       
-      // Only swap if both items exist in our list
-      if (oldIndex !== -1 && newIndex !== -1) {
-        // Create new array with swapped items
-        const newItems = [...items];
-        [newItems[oldIndex], newItems[newIndex]] = [newItems[newIndex], newItems[oldIndex]];
-        
-        setItems(newItems);
-        onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
-      }
+      setItems(newItems);
+      onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
     }
   };
 
-  // Dnd-kit sensors - just pointer for drag and drop
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  );
+  // Native HTML5 drag handlers for true swap
+  const handleNativeDragStart = useCallback((index) => {
+    setDragIndex(index);
+  }, []);
 
+  const handleNativeDragOver = useCallback((index) => {
+    setHoverIndex(index);
+  }, []);
+
+  const handleNativeDrop = useCallback((sourceIndex, targetIndex) => {
+    if (sourceIndex === targetIndex) return;
+    
+    // True swap: directly exchange the two items
+    const newItems = [...items];
+    const temp = newItems[sourceIndex];
+    newItems[sourceIndex] = newItems[targetIndex];
+    newItems[targetIndex] = temp;
+    
+    setItems(newItems);
+    onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
+    setDragIndex(null);
+    setHoverIndex(null);
+  }, [items, config, onConfigUpdate]);
+
+  const handleNativeDragEnd = useCallback(() => {
+    setDragIndex(null);
+    setHoverIndex(null);
+  }, []);
+
+  // Generate unique ID for draggable
+  const getDraggableId = (item, index) => `widget-${index}-${item}`;
 
   const handleDeleteWidget = (widgetIndex) => {
     const newItems = items.filter((_, idx) => idx !== widgetIndex);
@@ -270,6 +286,36 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
 
   const handleToggleInteractiveMode = () => saveInteractiveMode(!interactiveModeState);
 
+  // Render widget based on type
+  const renderWidget = (widgetType, index) => {
+    const isHidden = index > config.layout.cols;
+    const props = {
+      config: config,
+      isHidden: isHidden,
+    };
+    
+    switch (widgetType) {
+      case 'clock':
+        return <Clock {...props} />;
+      case 'clock2':
+        return <Clock {...props} span />;
+      case 'date':
+        return <Dates {...props} />;
+      case 'date2':
+        return <Dates {...props} span />;
+      case 'weather':
+        return <Weather {...props} />;
+      case 'cardbox':
+        return <Cardbox {...props} idx={index} />;
+      case 'listbox':
+        return <ListBox {...props} idx={index} />;
+      case 'memo':
+        return <Memo {...props} idx={index} />;
+      default:
+        return <Empty {...props} />;
+    }
+  };
+
   const handleOpenSettings = (index) => {
     const widgetType = items[index];
     if (widgetType) {
@@ -290,7 +336,7 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
     handleAddWidget 
   };
 
-  // Render interactive mode with dnd-kit
+  // Render interactive mode with @hello-pangea/dnd
   if (interactiveModeState) {
     return (
       <InteractiveModeContext.Provider value={value}>
@@ -312,24 +358,30 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
           </button>
         </div>
 
-        {/* Interactive Grid with dnd-kit - using Draggable (no auto-sorting) */}
-        <DndContext 
-          sensors={sensors} 
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
+        {/* Interactive Grid with native HTML5 drag - true swap */}
+        <div
+          className="px-[5%] py-[5%] md:px-[10%] lg:px-[15%] xl:px-[20%] h-screen w-screen grid gap-2"
+          style={{
+            gridTemplateColumns: `repeat(${config.layout.cols}, 1fr)`,
+            gridTemplateRows: `repeat(${config.layout.rows}, 1fr)`,
+          }}
+          onDragEnd={handleNativeDragEnd}
         >
-          {children}
-          <DragOverlay>
-            {activeId ? (
-              <div className="opacity-90 cursor-grabbing transform scale-105">
-                <div className="bg-gray-100 dark:bg-gray-800 border-2 border-blue-500 border-dashed rounded-lg p-2">
-                  <span className="text-gray-500 dark:text-gray-400 text-sm">Moving...</span>
-                </div>
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+          {items.map((item, index) => (
+            <DraggableWidget 
+              key={getDraggableId(item, index)}
+              id={getDraggableId(item, index)}
+              widgetType={item}
+              index={index}
+              renderWidget={renderWidget}
+              onDragStart={handleNativeDragStart}
+              onDragOver={handleNativeDragOver}
+              onDrop={handleNativeDrop}
+              isDragging={dragIndex === index}
+              isDropTarget={hoverIndex === index && dragIndex !== null && dragIndex !== index}
+            />
+          ))}
+        </div>
         
         {/* Add Widget Button */}
         <button 
@@ -369,3 +421,5 @@ export function useInteractiveMode() {
   if (!context) throw new Error('useInteractiveMode must be used within InteractiveModeProvider');
   return context;
 }
+
+export { WidgetControls };
