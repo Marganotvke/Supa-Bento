@@ -184,7 +184,9 @@ function GridSettingsModal({ open, onClose, config, onSave }) {
 }
 
 // Main Provider Component
-export default function InteractiveModeProvider({ config, onConfigUpdate, children }) {
+export default function InteractiveModeProvider({ config, onConfigUpdate, onExitInteractiveMode, children }) {
+  // Use local state for interactive mode - controlled by parent via props
+  const [isInteractive, setIsInteractive] = useState(true);
   const { initialize, saveInteractiveMode } = useInteractiveModeStore();
   const [items, setItems] = useState(config.layout.items || []);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -193,11 +195,9 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
   const [dragIndex, setDragIndex] = useState(null);
   const [hoverIndex, setHoverIndex] = useState(null);
 
+  // Initialize store for settings access
   useEffect(() => {
     initialize();
-    const unsubscribe = useInteractiveModeStore.subscribe(state => setInteractiveModeState(state.isInteractiveMode));
-    setInteractiveModeState(useInteractiveModeStore.getState().isInteractiveMode);
-    return unsubscribe;
   }, []);
 
   useEffect(() => {
@@ -265,7 +265,13 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
     onConfigUpdate({ ...newConfig, layout: { ...newConfig.layout, items: newItems } });
   };
 
-  const handleToggleInteractiveMode = () => saveInteractiveMode(!interactiveModeState);
+  const handleToggleInteractiveMode = () => {
+    if (onExitInteractiveMode) {
+      onExitInteractiveMode();
+    } else {
+      saveInteractiveMode(!interactiveModeState);
+    }
+  };
 
   // Render widget based on type
   const renderWidget = (widgetType, index) => {
@@ -275,26 +281,37 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
       isHidden: isHidden,
     };
     
+    let WidgetComponent;
     switch (widgetType) {
       case 'clock':
-        return <Clock {...props} />;
+        WidgetComponent = Clock;
+        break;
       case 'clock2':
+        WidgetComponent = Clock;
         return <Clock {...props} span />;
       case 'date':
-        return <Dates {...props} />;
+        WidgetComponent = Dates;
+        break;
       case 'date2':
+        WidgetComponent = Dates;
         return <Dates {...props} span />;
       case 'weather':
-        return <Weather {...props} />;
+        WidgetComponent = Weather;
+        break;
       case 'cardbox':
-        return <Cardbox {...props} idx={index} />;
+        WidgetComponent = Cardbox;
+        break;
       case 'listbox':
-        return <ListBox {...props} idx={index} />;
+        WidgetComponent = ListBox;
+        break;
       case 'memo':
-        return <Memo {...props} idx={index} />;
+        WidgetComponent = Memo;
+        break;
       default:
-        return <Empty {...props} />;
+        WidgetComponent = Empty;
     }
+    
+    return <WidgetComponent {...props} />;
   };
 
   const handleOpenSettings = (index) => {
@@ -311,14 +328,14 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
   };
 
   const value = { 
-    isInteractiveMode: interactiveModeState, 
+    isInteractiveMode: isInteractive, 
     handleDeleteWidget, 
     handleOpenSettings,
     handleAddWidget 
   };
 
   // Render interactive mode with native HTML5 drag and drop
-  if (interactiveModeState) {
+  if (isInteractive) {
     return (
       <InteractiveModeContext.Provider value={value}>
         {/* Toolbar */}

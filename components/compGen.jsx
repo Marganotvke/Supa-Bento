@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Icon } from '@iconify-icon/react';
 import Clock from "./clock";
 import Cardbox from "./cards";
 import ListBox from "./lists";
@@ -7,7 +8,37 @@ import Dates from "./date";
 import Empty from "./empty";
 import Weather from "./weather";
 import useInteractiveModeStore from '../hooks/useInteractiveMode';
-import { WidgetControls } from './interactive/index.js';
+
+// Widget controls - inline for better performance
+function WidgetControls({ widgetType, index }) {
+  const handleOpenSettings = () => {
+    browser.runtime.openOptionsPage();
+    setTimeout(() => {
+      browser.runtime.sendMessage({ 
+        action: 'openWidgetSettings', 
+        widgetType: widgetType 
+      });
+    }, 500);
+  };
+  
+  const handleDeleteWidget = async () => {
+    // This functionality is only available in interactive mode
+    // For normal mode, we'll redirect to settings
+    handleOpenSettings();
+  };
+  
+  return (
+    <>
+      <button
+        onClick={handleOpenSettings}
+        className="w-8 h-8 rounded-full bg-gray-600 hover:bg-gray-500 text-white flex items-center justify-center"
+        title="Widget Settings"
+      >
+        <Icon icon="mdi:cog" width="16" />
+      </button>
+    </>
+  );
+}
 
 export default function ComponentGenerator({ config }) {
   const components = config.layout.items;
