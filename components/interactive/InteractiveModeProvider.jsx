@@ -34,8 +34,13 @@ function WidgetControls({ widgetType, index }) {
 }
 
 // Native HTML5 draggable widget for true swap
-function DraggableWidget({ id, widgetType, index, renderWidget, onDragStart, onDragOver, onDrop, isDragging, isDropTarget }) {
+function DraggableWidget({ id, widgetType, index, renderWidget, onDragStart, onDragOver, onDrop, isDragging, isDropTarget, isWide }) {
+  // Determine if this widget should span 2 columns (wide widgets)
+  const isWideWidget = isWide || widgetType.endsWith('2');
+  const isEmpty = widgetType === 'empty';
+  
   const handleDragStart = (e) => {
+    if (isEmpty) return; // Don't allow dragging empty widgets as source
     e.dataTransfer.setData('text/plain', id);
     e.dataTransfer.effectAllowed = 'move';
     onDragStart(index);
@@ -56,25 +61,29 @@ function DraggableWidget({ id, widgetType, index, renderWidget, onDragStart, onD
 
   return (
     <div 
-      draggable
+      draggable={!isEmpty}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className={`relative group min-h-[100px] ${isDragging ? 'opacity-30' : ''} ${isDropTarget ? 'ring-4 ring-blue-500 ring-offset-2 rounded-lg' : ''}`}
-      style={{ cursor: 'grab' }}
+      className={`relative group min-h-[100px] ${isWideWidget ? 'md:col-span-2' : ''} ${isDragging ? 'opacity-30' : ''} ${isDropTarget ? 'ring-4 ring-blue-500 ring-offset-2 rounded-lg' : ''}`}
+      style={{ cursor: isEmpty ? 'default' : 'grab' }}
     >
-      {/* Drag handle indicator */}
-      <div className="absolute top-2 left-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="w-6 h-6 rounded bg-gray-500/80 flex items-center justify-center text-white">
-          <Icon icon="mdi:drag" width="14" />
+      {/* Drag handle indicator - hide for empty widgets */}
+      {!isEmpty && (
+        <div className="absolute top-2 left-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="w-6 h-6 rounded bg-gray-500/80 flex items-center justify-center text-white">
+            <Icon icon="mdi:drag" width="14" />
+          </div>
         </div>
-      </div>
+      )}
       {/* Render widget */}
       {renderWidget(widgetType, index)}
-      {/* Widget controls */}
-      <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-        <WidgetControls widgetType={widgetType} index={index} />
-      </div>
+      {/* Widget controls - hide for empty widgets */}
+      {!isEmpty && (
+        <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+          <WidgetControls widgetType={widgetType} index={index} />
+        </div>
+      )}
     </div>
   );
 }
@@ -98,7 +107,8 @@ function AddWidgetModal({ open, onClose, onAdd, config }) {
   ];
   
   const maxCells = config.layout.cols * config.layout.rows;
-  const currentCells = config.layout.items.length;
+  // Count only non-empty cells
+  const currentCells = (config.layout.items || []).filter(item => item !== 'empty').length;
   const isFull = currentCells >= maxCells;
   
   return (
@@ -185,19 +195,24 @@ function GridSettingsModal({ open, onClose, config, onSave }) {
 
 // Main Provider Component
 export default function InteractiveModeProvider({ config, onConfigUpdate, onExitInteractiveMode, children }) {
-  // Use local state for interactive mode - controlled by parent via props
-  const [isInteractive, setIsInteractive] = useState(true);
-  const { initialize, saveInteractiveMode } = useInteractiveModeStore();
+  // Use store for interactive mode - communicates with compGen
+  const { initialize, saveInteractiveMode, setInteractiveMode } = useInteractiveModeStore();
   const [items, setItems] = useState(config.layout.items || []);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [gridModalOpen, setGridModalOpen] = useState(false);
-  const [interactiveModeState, setInteractiveModeState] = useState(false);
   const [dragIndex, setDragIndex] = useState(null);
   const [hoverIndex, setHoverIndex] = useState(null);
+  // Local state to immediately show interactive UI when provider mounts
+  const [isInteractive, setIsInteractive] = useState(true);
 
-  // Initialize store for settings access
+  // Initialize store and set interactive mode when component mounts
   useEffect(() => {
     initialize();
+    // Already in interactive mode since provider is mounted
+    setInteractiveMode(true); 
+    return () => {
+      setInteractiveMode(false); // Exit interactive mode on unmount
+    };
   }, []);
 
   useEffect(() => {
@@ -239,14 +254,17 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, onExit
   const getDraggableId = (item, index) => `widget-${index}-${item}`;
 
   const handleDeleteWidget = (widgetIndex) => {
-    const newItems = items.filter((_, idx) => idx !== widgetIndex);
+    // Replace deleted widget with empty placeholder instead of removing
+    const newItems = [...items];
+    newItems[widgetIndex] = 'empty'; // Replace with empty placeholder
     setItems(newItems);
     onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
   };
 
   const handleAddWidget = (widgetType) => {
     const maxCells = config.layout.cols * config.layout.rows;
-    const currentCells = config.layout.items.length;
+    // Count only non-empty cells
+    const currentCells = items.filter(item => item !== 'empty').length;
     if (currentCells >= maxCells) return;
     
     const newItems = [...items, widgetType];
@@ -266,16 +284,17 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, onExit
   };
 
   const handleToggleInteractiveMode = () => {
+    setIsInteractive(false);
+    setInteractiveMode(false);
     if (onExitInteractiveMode) {
       onExitInteractiveMode();
-    } else {
-      saveInteractiveMode(!interactiveModeState);
     }
   };
 
   // Render widget based on type
   const renderWidget = (widgetType, index) => {
     const isHidden = index > config.layout.cols;
+    const isSpan = widgetType.endsWith('2'); // Wide widgets end with '2'
     const props = {
       config: config,
       isHidden: isHidden,
@@ -307,6 +326,9 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, onExit
       case 'memo':
         WidgetComponent = Memo;
         break;
+      case 'empty':
+        WidgetComponent = Empty;
+        break;
       default:
         WidgetComponent = Empty;
     }
@@ -327,6 +349,11 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, onExit
     }
   };
 
+  // Get current interactive mode state from store
+  const storeState = useInteractiveModeStore();
+  
+  // Use local isInteractive state for immediate rendering
+  // Store state is used for context value to communicate with other components
   const value = { 
     isInteractiveMode: isInteractive, 
     handleDeleteWidget, 
@@ -334,7 +361,7 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, onExit
     handleAddWidget 
   };
 
-  // Render interactive mode with native HTML5 drag and drop
+  // Render interactive mode immediately when provider mounts (local state)
   if (isInteractive) {
     return (
       <InteractiveModeContext.Provider value={value}>
@@ -377,6 +404,7 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, onExit
               onDrop={handleNativeDrop}
               isDragging={dragIndex === index}
               isDropTarget={hoverIndex === index && dragIndex !== null && dragIndex !== index}
+              isWide={item.endsWith('2')}
             />
           ))}
         </div>
