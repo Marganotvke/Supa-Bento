@@ -206,25 +206,6 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
     }
   }, [config?.layout?.items]);
 
-  // Handle native HTML5 drag end - true swap
-  const handleDndKitDragEnd = (event) => {
-    const { active, over } = event;
-    
-    if (!over) return;
-    
-    const oldIndex = items.findIndex((item, idx) => getDraggableId(item, idx) === active.id);
-    const newIndex = items.findIndex((item, idx) => getDraggableId(item, idx) === over.id);
-    
-    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-      const newItems = [...items];
-      const [removed] = newItems.splice(oldIndex, 1);
-      newItems.splice(newIndex, 0, removed);
-      
-      setItems(newItems);
-      onConfigUpdate({ ...config, layout: { ...config.layout, items: newItems } });
-    }
-  };
-
   // Native HTML5 drag handlers for true swap
   const handleNativeDragStart = useCallback((index) => {
     setDragIndex(index);
@@ -336,7 +317,7 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, childr
     handleAddWidget 
   };
 
-  // Render interactive mode with @hello-pangea/dnd
+  // Render interactive mode with native HTML5 drag and drop
   if (interactiveModeState) {
     return (
       <InteractiveModeContext.Provider value={value}>

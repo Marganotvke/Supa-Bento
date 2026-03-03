@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Icon } from '@iconify-icon/react';
 import Clock from "./clock";
 import Cardbox from "./cards";
 import ListBox from "./lists";
