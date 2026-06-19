@@ -385,7 +385,7 @@ export default function InteractiveModeProvider({ config, onConfigUpdate, onExit
 
         {/* Interactive Grid with native HTML5 drag - true swap */}
         <div
-          className="px-[5%] py-[5%] md:px-[10%] lg:px-[15%] xl:px-[20%] h-screen w-screen grid gap-2"
+          className="px-[4%] py-[5%] md:px-[8%] lg:px-[12%] xl:px-[16%] h-screen w-screen grid gap-2"
           style={{
             gridTemplateColumns: `repeat(${config.layout.cols}, 1fr)`,
             gridTemplateRows: `repeat(${config.layout.rows}, 1fr)`,
